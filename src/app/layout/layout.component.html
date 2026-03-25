@@ -1,0 +1,100 @@
+<div class="flex h-screen overflow-hidden bg-gray-50 font-sans">
+
+  <!-- ================================
+       SIDEBAR
+  ================================ -->
+  <aside class="w-60 min-w-60 bg-[#111318] flex flex-col h-screen overflow-y-auto border-r border-[#1e2130]">
+
+    <!-- Logo -->
+    <div class="px-5 py-6 border-b border-[#1e2130]">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">⚡</div>
+        <span class="text-white font-bold text-lg tracking-tight">
+          Sprint<span class="text-blue-400">Track</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Sprint selector -->
+    <!-- TODO: bind to active sprint -->
+    <div class="mx-3 my-4 bg-[#1a1d27] border border-[#1e2130] rounded-xl p-3">
+      <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Active Sprint</div>
+      <div class="flex items-center justify-between">
+        <span class="text-white text-sm font-semibold">Sprint 1</span>
+        <span class="text-[10px] bg-blue-500/20 text-blue-400 font-bold px-2 py-0.5 rounded-full">
+          ACTIVE
+        </span>
+      </div>
+      <div class="text-[11px] text-gray-500 mt-1">Jan 1 – Jan 14</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="px-3 flex-1">
+
+      <!-- TODO: role-based nav -->
+      <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-1">Overview</div>
+      <a routerLink="/dashboard"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 transition-all text-gray-500 hover:bg-[#1a1d27] hover:text-white">
+        Dashboard
+      </a>
+      <a routerLink="/attendance"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 transition-all text-gray-500 hover:bg-[#1a1d27] hover:text-white">
+        My Attendance
+      </a>
+
+      <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Analytics</div>
+      <a routerLink="/velocity"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+        Velocity
+      </a>
+      <a routerLink="/workload"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+        Workload
+      </a>
+      <a routerLink="/reports"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+        Reports
+      </a>
+
+      <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Sprints</div>
+      <a routerLink="/sprints"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+        All Sprints
+      </a>
+      <a routerLink="/issues"
+         routerLinkActive="bg-[#1e2235] !text-white"
+         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+        Issues
+      </a>
+
+    </nav>
+
+    <!-- TODO: logged in user -->
+    <div class="p-3 border-t border-[#1e2130]">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          JD
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-white text-xs font-medium truncate">John Doe</div>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-500/20 text-gray-400">
+            Employee
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Page content -->
+  <div class="flex-1 min-w-0 overflow-hidden flex flex-col bg-[#0d0f17]">
+
+  </div>
+
+</div>

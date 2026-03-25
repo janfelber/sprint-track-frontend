@@ -1,0 +1,156 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17]">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-8 py-5 border-b border-[#1e2130] bg-[#0d0f17] flex-shrink-0">
+    <div>
+      <h1 class="text-white text-xl font-bold tracking-tight">Team Management</h1>
+      <p class="text-gray-500 text-sm mt-0.5">Manage members, roles and access</p>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto px-8 py-6">
+
+    <!-- Stat cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+        <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Active Members</p>
+        <p class="text-white text-2xl font-bold">{{ totalActive() }}</p>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+        <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Admins</p>
+        <p class="text-purple-400 text-2xl font-bold">{{ totalAdmins() }}</p>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+        <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Scrum Masters</p>
+        <p class="text-blue-400 text-2xl font-bold">{{ totalSMs() }}</p>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+        <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Employees</p>
+        <p class="text-emerald-400 text-2xl font-bold">{{ totalEmployees() }}</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex items-center gap-3 mb-5">
+      <!-- Search -->
+      <div class="relative flex-1 max-w-sm">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text"
+               placeholder="Search by name, email, department…"
+               [ngModel]="searchQuery()"
+               (ngModelChange)="searchQuery.set($event)"
+               class="w-full bg-[#111318] border border-[#1e2130] text-white text-sm rounded-lg pl-9 pr-4 py-2 placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors" />
+      </div>
+
+      <!-- Role filter -->
+      <select [ngModel]="filterRole()"
+              (ngModelChange)="filterRole.set($event)"
+              class="bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
+        <option value="ALL">All Roles</option>
+        <option value="ADMIN">Admin</option>
+        <option value="SCRUM_MASTER">Scrum Master</option>
+        <option value="EMPLOYEE">Employee</option>
+      </select>
+
+      <!-- Status filter -->
+      <select [ngModel]="filterStatus()"
+              (ngModelChange)="filterStatus.set($event)"
+              class="bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
+        <option value="ALL">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <span class="text-gray-600 text-sm ml-auto">{{ filtered().length }} member{{ filtered().length !== 1 ? 's' : '' }}</span>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-[#1e2130]">
+            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Member</th>
+            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Department</th>
+            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Role</th>
+            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Status</th>
+            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Joined</th>
+            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of filtered()"
+              class="border-b border-[#1a1d27] hover:bg-[#1a1d27] transition-colors last:border-0">
+            <!-- Member -->
+            <td class="px-5 py-3.5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+                     [ngClass]="m.color">
+                  {{ m.initials }}
+                </div>
+                <div>
+                  <div class="text-white font-medium">{{ m.name }}</div>
+                  <div class="text-gray-600 text-xs">{{ m.email }}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Department -->
+            <td class="px-5 py-3.5 text-gray-400">{{ m.department }}</td>
+
+            <!-- Role dropdown -->
+            <td class="px-5 py-3.5">
+              <select [ngModel]="m.role"
+                      (ngModelChange)="changeRole(m.id, $event)"
+                      class="bg-[#1a1d27] border border-[#1e2130] text-xs font-semibold rounded-full px-3 py-1 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors"
+                      [ngClass]="m.role === 'ADMIN' ? 'text-purple-400' : m.role === 'SCRUM_MASTER' ? 'text-blue-400' : 'text-emerald-400'">
+                <option value="ADMIN">Admin</option>
+                <option value="SCRUM_MASTER">Scrum Master</option>
+                <option value="EMPLOYEE">Employee</option>
+              </select>
+            </td>
+
+            <!-- Status toggle -->
+            <td class="px-5 py-3.5">
+              <button (click)="toggleStatus(m.id)"
+                      class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full transition-colors"
+                      [ngClass]="m.status === 'active'
+                        ? 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25'
+                        : 'bg-gray-500/15 text-gray-500 hover:bg-gray-500/25'">
+                <span class="w-1.5 h-1.5 rounded-full"
+                      [ngClass]="m.status === 'active' ? 'bg-emerald-400' : 'bg-gray-500'"></span>
+                {{ m.status === 'active' ? 'Active' : 'Inactive' }}
+              </button>
+            </td>
+
+            <!-- Joined -->
+            <td class="px-5 py-3.5 text-gray-500 text-xs">{{ m.joinedDate }}</td>
+
+            <!-- Actions -->
+            <td class="px-5 py-3.5">
+              <button (click)="removeMember(m.id)"
+                      class="text-gray-600 hover:text-red-400 transition-colors p-1 rounded hover:bg-red-500/10"
+                      title="Remove member">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6"/><path d="M14 11v6"/>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Empty state -->
+          <tr *ngIf="filtered().length === 0">
+            <td colspan="6" class="px-5 py-12 text-center text-gray-600">
+              No members found matching your filters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

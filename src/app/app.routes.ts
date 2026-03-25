@@ -10,7 +10,11 @@ export const routes: Routes = [
       {
         path: 'issues',
         loadComponent: () => import('./issues/issues.component').then(m => m.IssuesComponent),
-      }
+      },
+      {
+        path: 'admin/team',
+        loadComponent: () => import('./admin/admin-team.component').then(m => m.AdminTeamComponent),
+      },
     ],
   },
   { path: '**', redirectTo: 'issues' },

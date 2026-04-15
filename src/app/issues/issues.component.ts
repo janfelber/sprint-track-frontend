@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { IssueService, IssueDTO } from '../core/services/issue.service';
+import {SprintService} from "../core/services/sprint.service";
 
 @Component({
   selector: 'app-issues',
@@ -12,15 +13,15 @@ import { IssueService, IssueDTO } from '../core/services/issue.service';
 })
 export class IssuesComponent implements OnInit {
   private readonly issueService = inject(IssueService);
+  private readonly sprintService = inject(SprintService);
 
   issues  = signal<IssueDTO[]>([]);
+  sprints = signal<string[]>([]);
   loading = signal(true);
 
   filterSprint = signal<string>('ALL');
   filterStatus = signal<string>('ALL');
   searchQuery  = signal('');
-
-  sprints = computed(() => [...new Set(this.issues().map(i => i.sprint))].sort());
 
   filtered = computed(() => {
     const q = this.searchQuery().toLowerCase();
@@ -33,6 +34,12 @@ export class IssuesComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.loading.set(true);
+
+    this.sprintService.getAllNames().subscribe(names => {
+      this.sprints.set(names);
+    });
+
     this.issueService.getAll().subscribe({
       next: page => {
         this.issues.set(page.content);

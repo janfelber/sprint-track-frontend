@@ -1,0 +1,314 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17]">
+
+  <!-- Top bar -->
+  <header class="bg-[#0d0f17] border-b border-[#1e2130] px-7 h-[60px] flex items-center justify-between flex-shrink-0">
+    <div>
+      <h1 class="text-base font-bold text-white leading-tight">
+        {{ role() === 'EMPLOYEE' ? 'My Dashboard' : 'Team Attendance' }}
+      </h1>
+      <p class="text-xs text-gray-500">
+        {{ activeSprint()?.name ?? '—' }}
+        · {{ activeSprint()?.startDate | date:'MMM d' }}
+        – {{ activeSprint()?.endDate | date:'MMM d, yyyy' }}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button *ngIf="role() !== 'EMPLOYEE'" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 border border-[#1e2130] hover:bg-[#1a1d27] transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M3 4h18M3 8h18M3 12h12"/>
+        </svg>
+        Filter
+      </button>
+      <button *ngIf="role() !== 'EMPLOYEE'" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export Report
+      </button>
+    </div>
+  </header>
+
+  <!-- Scrollable content -->
+  <main class="flex-1 overflow-y-auto p-6 bg-[#0d0f17]">
+
+    <!-- EMPLOYEE PERSONAL DASHBOARD -->
+    <ng-container *ngIf="role() === 'EMPLOYEE'">
+
+      <div class="mb-6">
+        <h2 class="text-xl font-bold text-white">Good morning, {{ firstName }}!</h2>
+        <p class="text-sm text-gray-500 mt-0.5">{{ today() | date:'EEEE, MMMM d, yyyy' }}</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+          <div class="text-xs text-gray-500 font-medium mb-3">Today's Status</div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [ngClass]="getStatusDotColor(myTodayStatus() ?? 'absent')"></span>
+            <span class="text-lg font-bold text-white">{{ myTodayStatus() ? formatStatus(myTodayStatus()!) : 'No record' }}</span>
+          </div>
+          <div class="text-xs text-gray-500">
+            <ng-container *ngIf="myCheckInTime(); else noCheckIn">
+              Checked in at <span class="font-mono font-semibold text-gray-400">{{ myCheckInTime() }}</span>
+            </ng-container>
+            <ng-template #noCheckIn>—</ng-template>
+          </div>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+          <div class="text-xs text-gray-500 font-medium mb-3">Sprint Progress</div>
+          <div class="text-lg font-bold text-white mb-1">
+            Day {{ activeSprint()?.currentDay ?? 0 }} of {{ activeSprint()?.totalDays ?? 0 }}
+          </div>
+          <div class="w-full h-1.5 bg-[#1e2130] rounded-full overflow-hidden">
+            <div class="h-full bg-blue-500 rounded-full" [style.width.%]="sprintProgressPct()"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-1.5">{{ daysRemaining() }} days remaining</div>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+          <div class="text-xs text-gray-500 font-medium mb-3">My Tasks</div>
+          <div class="text-lg font-bold text-white mb-1">{{ myDoneCount }} / {{ myIssues().length }} done</div>
+          <div class="w-full h-1.5 bg-[#1e2130] rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full"
+                 [style.width.%]="myIssues().length > 0 ? (myDoneCount / myIssues().length) * 100 : 0"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-1.5">{{ myIssues().length - myDoneCount }} tasks remaining</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-[1.4fr_1fr] gap-4 mb-6">
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-[#1e2130] flex items-center justify-between">
+            <div>
+              <div class="text-sm font-semibold text-white">My Issues</div>
+              <div class="text-xs text-gray-500 mt-0.5">{{ activeSprint()?.name ?? '—' }} · assigned to me</div>
+            </div>
+            <button (click)="onCheckIn()"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              Check In
+            </button>
+          </div>
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-[#1e2130]">
+                <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">Issue</th>
+                <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Type</th>
+                <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Status</th>
+                <th class="text-right text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">SP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let issue of myIssues()" class="border-b border-[#1a1d27] last:border-0 hover:bg-[#1a1d27] transition-colors">
+                <td class="px-5 py-3">
+                  <div class="text-xs font-mono text-gray-500 mb-0.5">{{ issue.issueKey }}</div>
+                  <div class="text-sm font-medium text-gray-300">{{ issue.title }}</div>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded" [ngClass]="getIssueTypeClasses(issue.issueType)">{{ issue.issueType }}</span>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="text-[11px] font-semibold px-2 py-1 rounded-full" [ngClass]="getIssueStatusClasses(issue.status)">{{ formatIssueStatus(issue.status) }}</span>
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <span class="text-sm font-bold text-gray-500">{{ issue.storyPoints }}</span>
+                </td>
+              </tr>
+              <tr *ngIf="myIssues().length === 0">
+                <td colspan="4" class="px-5 py-6 text-center text-xs text-gray-600">No issues assigned in this sprint</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-[#1e2130]">
+            <div class="text-sm font-semibold text-white">My Attendance</div>
+            <div class="text-xs text-gray-500 mt-0.5">{{ activeSprint()?.name ?? '—' }} · this sprint</div>
+          </div>
+          <div class="p-4 flex flex-col gap-2">
+            <div *ngFor="let day of mySprintAttendance()" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#1a1d27] transition-colors">
+              <div class="w-8 text-center">
+                <div class="text-[10px] text-gray-500 font-medium">{{ day.date | date:'EEE' }}</div>
+                <div class="text-xs font-semibold text-gray-400">{{ day.date | date:'d' }}</div>
+              </div>
+              <div class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="getStatusDotColor(day.status)"></div>
+              <div class="flex-1">
+                <span class="text-sm font-medium text-gray-300">{{ formatStatus(day.status) }}</span>
+              </div>
+              <span class="text-xs font-mono text-gray-500">{{ day.checkInTime ? day.checkInTime.slice(0, 5) : '—' }}</span>
+            </div>
+            <div *ngIf="mySprintAttendance().length === 0" class="py-4 text-center text-xs text-gray-600">
+              No attendance records for this sprint
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- SM / ADMIN DASHBOARD -->
+    <ng-container *ngIf="role() !== 'EMPLOYEE'">
+
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div *ngFor="let stat of stats()" class="bg-[#111318] border border-[#1e2130] rounded-xl p-5 flex items-start justify-between gap-3">
+          <div class="flex-1">
+            <div class="text-xs text-gray-500 font-medium mb-2">{{ stat.label }}</div>
+            <div class="text-2xl font-bold text-white leading-none">{{ stat.value }}</div>
+            <div class="text-[11px] mt-1.5" [ngClass]="{'text-emerald-400': stat.changeType === 'up', 'text-red-400': stat.changeType === 'down', 'text-gray-600': stat.changeType === 'neutral'}">
+              {{ stat.change }}
+            </div>
+          </div>
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" [ngClass]="stat.iconBg">
+            <svg class="w-4 h-4" [ngClass]="stat.iconColor" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <ng-container [ngSwitch]="stat.icon">
+                <ng-container *ngSwitchCase="'users'">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </ng-container>
+                <ng-container *ngSwitchCase="'check-circle'">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </ng-container>
+                <ng-container *ngSwitchCase="'user-x'">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <line x1="17" y1="8" x2="22" y2="13"/><line x1="22" y1="8" x2="17" y2="13"/>
+                </ng-container>
+                <ng-container *ngSwitchCase="'clock'">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </ng-container>
+              </ng-container>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-[#1e2130] flex items-center justify-between">
+            <div>
+              <div class="text-sm font-semibold text-white">Weekly Attendance Breakdown</div>
+              <div class="text-xs text-gray-500 mt-0.5">Current sprint · by status</div>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <div class="flex items-center gap-1 text-[10px] text-gray-500"><div class="w-2 h-2 rounded-sm bg-emerald-500"></div>Present</div>
+              <div class="flex items-center gap-1 text-[10px] text-gray-500"><div class="w-2 h-2 rounded-sm bg-indigo-500"></div>Remote</div>
+              <div class="flex items-center gap-1 text-[10px] text-gray-500"><div class="w-2 h-2 rounded-sm bg-amber-400"></div>Late</div>
+              <div class="flex items-center gap-1 text-[10px] text-gray-500"><div class="w-2 h-2 rounded-sm bg-red-400"></div>Absent</div>
+            </div>
+          </div>
+          <div class="p-5 flex flex-col gap-2.5">
+            <div *ngFor="let row of weeklyBreakdown()" class="flex items-center gap-2.5">
+              <span class="w-7 text-xs text-gray-500 font-medium">{{ row.day }}</span>
+              <div class="flex-1 h-5 bg-[#1a1d27] rounded overflow-hidden flex">
+                <div class="h-full bg-emerald-500" [style.width.%]="row.total > 0 ? (row.present / row.total) * 100 : 0"></div>
+                <div class="h-full bg-indigo-500" [style.width.%]="row.total > 0 ? (row.remote / row.total) * 100 : 0"></div>
+                <div class="h-full bg-amber-400" [style.width.%]="row.total > 0 ? (row.late / row.total) * 100 : 0"></div>
+                <div class="h-full bg-red-400"    [style.width.%]="row.total > 0 ? (row.absent / row.total) * 100 : 0"></div>
+              </div>
+              <span class="w-6 text-xs text-gray-500 text-right">{{ row.total }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-[#1e2130]">
+            <div class="text-sm font-semibold text-white">Sprint Attendance Trend</div>
+            <div class="text-xs text-gray-500 mt-0.5">{{ sprintTrend().length }} sprints · avg attendance %</div>
+          </div>
+          <div class="px-5 pt-4 pb-5">
+            <div class="flex items-end gap-1.5" style="height: 120px;">
+              <div *ngFor="let bar of sprintTrend()" class="flex-1 flex flex-col items-center gap-0.5">
+                <span class="text-[9px] font-semibold" [ngClass]="bar.active ? 'text-blue-400' : 'text-gray-600'">
+                  {{ bar.pct }}%
+                </span>
+                <div class="w-full rounded-t transition-all duration-500 cursor-pointer"
+                     [style.height]="getBarHeight(bar.pct)"
+                     [ngClass]="bar.active ? 'bg-blue-500 ring-2 ring-blue-500/30' : 'bg-blue-500/30 hover:bg-blue-500/60'">
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-1.5 mt-2 border-t border-[#1e2130] pt-2">
+              <div *ngFor="let bar of sprintTrend()" class="flex-1 text-center">
+                <span class="text-[9px] text-gray-600">{{ bar.sprint }}</span>
+              </div>
+            </div>
+            <div *ngIf="sprintTrend().length === 0" class="flex items-center justify-center h-32 text-xs text-gray-600">
+              No sprint data available
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-[1.4fr_1fr] gap-4">
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden flex flex-col">
+          <div class="px-5 py-4 border-b border-[#1e2130] flex-shrink-0">
+            <div class="text-sm font-semibold text-white">Today's Attendance</div>
+            <div class="text-xs text-gray-500 mt-0.5">{{ today() | date:'EEEE, MMMM d, yyyy' }}</div>
+          </div>
+          <div class="overflow-y-auto max-h-72">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-[#1e2130]">
+                  <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">Member</th>
+                  <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Status</th>
+                  <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Check-in</th>
+                  <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of teamMembers()" class="border-b border-[#1a1d27] last:border-0 hover:bg-[#1a1d27] transition-colors">
+                  <td class="px-5 py-2.5">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0" [ngClass]="m.color">{{ m.initials }}</div>
+                      <div>
+                        <div class="text-sm font-medium text-gray-300">{{ m.name }}</div>
+                        <div class="text-[11px] text-gray-600">{{ m.role }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold" [ngClass]="getStatusClasses(m.status)">
+                      ● {{ formatStatus(m.status) }}
+                    </span>
+                  </td>
+                  <td class="px-3 py-2.5 text-sm text-gray-500 font-mono">{{ m.checkInTime ? m.checkInTime.slice(0, 5) : '—' }}</td>
+                  <td class="px-3 py-2.5 text-xs text-gray-500">{{ m.note ?? '—' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-[#1e2130]">
+            <div class="text-sm font-semibold text-white">Today's Summary</div>
+            <div class="text-xs text-gray-500 mt-0.5">
+              {{ activeSprint()?.name ?? '—' }} · Day {{ activeSprint()?.currentDay ?? 0 }} of {{ activeSprint()?.totalDays ?? 0 }}
+            </div>
+          </div>
+          <div class="p-5 flex flex-col gap-3">
+            <div *ngFor="let s of todaySummaryCards()" class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#1a1d27] border border-[#1e2130]">
+              <div class="flex items-center gap-2 text-sm font-medium text-gray-400">
+                <div class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="s.color"></div>
+                {{ s.label }}
+              </div>
+              <span class="text-lg font-bold" [ngClass]="s.textColor">{{ s.count }}</span>
+            </div>
+            <button *ngIf="role() === 'SCRUM_MASTER'" (click)="onCheckIn()"
+                    class="w-full mt-1 py-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              Check In Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+  </main>
+</div>

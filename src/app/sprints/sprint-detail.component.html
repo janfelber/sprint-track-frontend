@@ -1,0 +1,128 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17]">
+
+  <div *ngIf="loading()" class="flex-1 flex items-center justify-center text-gray-600 text-sm">
+    Loading sprint...
+  </div>
+
+  <ng-container *ngIf="!loading() && sprint()">
+
+    <!-- Header -->
+    <header class="flex items-center gap-4 px-8 py-5 border-b border-[#1e2130] flex-shrink-0">
+      <button (click)="goBack()" class="text-gray-600 hover:text-gray-300 transition-colors p-1 rounded-lg hover:bg-[#1a1d27]">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div class="flex items-center gap-3 flex-1">
+        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" [ngClass]="getSprintStatusClasses(sprint()!.status)">
+          {{ sprint()!.status }}
+        </span>
+        <h1 class="text-white text-xl font-bold tracking-tight">{{ sprint()!.name }}</h1>
+        <span class="text-gray-600 text-sm">{{ sprint()!.startDate }} – {{ sprint()!.endDate }}</span>
+      </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto px-8 py-6">
+
+      <!-- Goal -->
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl px-5 py-4 mb-6">
+        <p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1">Sprint Goal</p>
+        <p class="text-gray-300 text-sm">{{ sprint()!.goal }}</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-5 gap-4 mb-6">
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+          <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Done</p>
+          <p class="text-emerald-400 text-2xl font-bold">{{ done() }}</p>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+          <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">In Progress</p>
+          <p class="text-blue-400 text-2xl font-bold">{{ inProgress() }}</p>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+          <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">In Review</p>
+          <p class="text-amber-400 text-2xl font-bold">{{ inReview() }}</p>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+          <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">To Do</p>
+          <p class="text-gray-400 text-2xl font-bold">{{ toDo() }}</p>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4">
+          <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Story Points</p>
+          <p class="text-white text-2xl font-bold">
+            <span class="text-emerald-400">{{ doneSP() }}</span>
+            <span class="text-gray-600 text-lg"> / {{ totalSP() }}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs text-gray-600">Sprint progress</span>
+          <span class="text-xs text-gray-400 font-semibold">{{ progress() }}%</span>
+        </div>
+        <div class="h-1.5 bg-[#1e2130] rounded-full overflow-hidden">
+          <div class="h-full bg-emerald-500 rounded-full transition-all" [style.width.%]="progress()"></div>
+        </div>
+      </div>
+
+      <!-- Issues table -->
+      <div *ngIf="issues().length > 0; else noIssues" class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-[#1e2130]">
+              <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Key</th>
+              <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Title</th>
+              <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Status</th>
+              <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Assignee</th>
+              <th class="text-right text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">SP</th>
+              <th class="text-right text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Est. h</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let issue of issues()"
+                class="border-b border-[#1a1d27] hover:bg-[#1a1d27] transition-colors last:border-0">
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-1.5">
+                  <lucide-icon [name]="getTypeIcon(issue.issueType)" [size]="14" [ngClass]="getTypeColor(issue.issueType)" class="flex-shrink-0"></lucide-icon>
+                  <span class="text-gray-500 text-xs font-mono">{{ issue.issueKey }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-gray-300 font-medium max-w-xs truncate">{{ issue.title }}</td>
+              <td class="px-5 py-3">
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="getStatusClasses(issue.status)">
+                  {{ formatStatus(issue.status) }}
+                </span>
+              </td>
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                       [ngClass]="getAvatarColor(issue.assignee)">
+                    {{ getInitials(issue.assignee) }}
+                  </div>
+                  <span class="text-gray-500 text-xs">{{ issue.assignee }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-right text-gray-400 text-xs font-semibold">{{ issue.storyPoints }}</td>
+              <td class="px-5 py-3 text-right text-gray-500 text-xs font-mono">{{ issue.estimatedHours }}h</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noIssues>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl px-5 py-12 text-center text-gray-600 text-sm">
+          No issues available for this sprint.
+        </div>
+      </ng-template>
+
+    </div>
+  </ng-container>
+
+  <div *ngIf="!loading() && !sprint()" class="flex-1 flex items-center justify-center text-gray-600">
+    Sprint not found.
+  </div>
+
+</div>

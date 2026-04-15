@@ -1,0 +1,348 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17] h-full">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-8 py-5 border-b border-[#1e2130] flex-shrink-0">
+    <div>
+      <h1 class="text-white text-xl font-bold tracking-tight">My Attendance</h1>
+      <p class="text-gray-500 text-sm mt-0.5">Click any day to log your attendance and worked hours</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Export -->
+      <button class="flex items-center gap-2 bg-[#111318] border border-[#1e2130] hover:border-gray-500 text-gray-400 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export Report
+      </button>
+      <!-- Month navigation -->
+      <button (click)="prevMonth()"
+              class="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-[#1a1d27] transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <span class="text-white text-sm font-semibold w-36 text-center">{{ monthLabel() }}</span>
+      <button (click)="nextMonth()"
+              class="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-[#1a1d27] transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto px-8 py-6 bg-[#0d0f17]">
+
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="loading()">
+      <!-- Stats skeleton -->
+      <div class="grid grid-cols-5 gap-3 mb-6">
+        <div *ngFor="let _ of [1,2,3,4,5]"
+             class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3 animate-pulse">
+          <div class="w-2.5 h-2.5 rounded-full bg-[#1e2130] flex-shrink-0"></div>
+          <div class="flex flex-col gap-1.5">
+            <div class="h-2.5 w-12 rounded bg-[#1e2130]"></div>
+            <div class="h-5 w-6 rounded bg-[#1e2130]"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Calendar skeleton -->
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden animate-pulse">
+        <div class="grid grid-cols-7 border-b border-[#1e2130]">
+          <div *ngFor="let _ of [1,2,3,4,5,6,7]" class="py-3 flex justify-center">
+            <div class="h-2.5 w-8 rounded bg-[#1e2130]"></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-7">
+          <div *ngFor="let _ of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]"
+               class="min-h-[100px] border-b border-r border-[#1a1d27] p-2">
+            <div class="h-2.5 w-5 rounded bg-[#1e2130] mb-2"></div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Stats row -->
+    <div *ngIf="!loading()" class="grid grid-cols-5 gap-3 mb-6">
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></div>
+        <div>
+          <p class="text-gray-500 text-xs">Present</p>
+          <p class="text-emerald-400 text-xl font-bold">{{ monthStats().present }}</p>
+        </div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-indigo-400 flex-shrink-0"></div>
+        <div>
+          <p class="text-gray-500 text-xs">Remote</p>
+          <p class="text-indigo-400 text-xl font-bold">{{ monthStats().remote }}</p>
+        </div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></div>
+        <div>
+          <p class="text-gray-500 text-xs">Late / Half day</p>
+          <p class="text-amber-400 text-xl font-bold">{{ monthStats().late + monthStats().halfDay }}</p>
+        </div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-red-400 flex-shrink-0"></div>
+        <div>
+          <p class="text-gray-500 text-xs">Absent / Leave</p>
+          <p class="text-red-400 text-xl font-bold">{{ monthStats().absent + monthStats().sickLeave + monthStats().vacation }}</p>
+        </div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-blue-400 flex-shrink-0"></div>
+        <div>
+          <p class="text-gray-500 text-xs">Hours logged</p>
+          <p class="text-blue-400 text-xl font-bold">{{ monthStats().totalHours }}h</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div *ngIf="!loading()" class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+
+      <!-- Day headers -->
+      <div class="grid grid-cols-7 border-b border-[#1e2130]">
+        <div *ngFor="let d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']"
+             class="text-center text-[11px] uppercase tracking-widest text-gray-600 font-semibold py-3"
+             [ngClass]="d === 'Sat' || d === 'Sun' ? 'text-gray-700' : ''">
+          {{ d }}
+        </div>
+      </div>
+
+      <!-- Day cells -->
+      <div class="grid grid-cols-7">
+        <div *ngFor="let dateStr of calendarDays(); let i = index"
+             class="min-h-[100px] border-b border-r border-[#1a1d27] last:border-r-0 relative"
+             [ngClass]="{
+               'border-r-0': (i + 1) % 7 === 0,
+               'border-b-0': i >= calendarDays().length - 7
+             }">
+
+          <!-- Empty padding cell -->
+          <ng-container *ngIf="!dateStr">
+            <div class="min-h-[100px]"></div>
+          </ng-container>
+
+          <!-- Day cell with content -->
+          <ng-container *ngIf="dateStr">
+            <div (click)="!isWeekend(dateStr) ? openModal(dateStr) : null"
+                 class="min-h-[100px] p-2 flex flex-col h-full border transition-all"
+                 [ngClass]="[
+                   isWeekend(dateStr) ? 'cursor-default opacity-40 border-transparent' : 'cursor-pointer hover:border-blue-500/40 border-transparent',
+                   getDayBg(dateStr)
+                 ]">
+
+              <!-- Day number -->
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-semibold"
+                      [ngClass]="isWeekend(dateStr) ? 'text-gray-700' : recordByDate(dateStr) ? 'text-white' : 'text-gray-500'">
+                  {{ dateStr.split('-')[2] | number:'1.0-0' }}
+                </span>
+                <!-- Status dot -->
+                <div *ngIf="recordByDate(dateStr) as rec"
+                     class="w-2 h-2 rounded-full flex-shrink-0"
+                     [ngClass]="getStatusDot(rec.status)">
+                </div>
+              </div>
+
+              <!-- Record info -->
+              <ng-container *ngIf="recordByDate(dateStr) as rec">
+                <span class="text-[10px] font-semibold leading-none mb-1.5"
+                      [ngClass]="{
+                        'text-emerald-400': rec.status === 'PRESENT',
+                        'text-indigo-400':  rec.status === 'REMOTE',
+                        'text-amber-400':   rec.status === 'LATE',
+                        'text-teal-400':    rec.status === 'HALF_DAY',
+                        'text-red-400':     rec.status === 'ABSENT',
+                        'text-pink-400':    rec.status === 'SICK_LEAVE',
+                        'text-purple-400':  rec.status === 'VACATION'
+                      }">
+                  {{ getStatusLabel(rec.status) }}
+                </span>
+
+                <!-- Times -->
+<!--                <div *ngIf="rec.checkInTime" class="text-[10px] text-gray-600 font-mono leading-none mb-1">-->
+<!--                  {{ rec.checkInTime }} – {{ rec.checkOutTime ?? '?' }}-->
+<!--                </div>-->
+
+                <!-- Worklogs -->
+<!--                <div *ngIf="totalHours(rec) > 0"-->
+<!--                     class="mt-auto text-[10px] font-semibold text-blue-400 font-mono">-->
+<!--                  {{ totalHours(rec) }}h logged-->
+<!--                </div>-->
+                <div *ngIf="rec.worklogs.length > 0" class="flex flex-col gap-0.5 mt-0.5">
+                  <div *ngFor="let w of rec.worklogs" class="text-[9px] text-gray-600 truncate">
+                    {{ w.issueKey }} · {{ w.hours }}h
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Empty day hint -->
+              <div *ngIf="!recordByDate(dateStr) && !isWeekend(dateStr)"
+                   class="mt-auto text-[10px] text-gray-700 opacity-0 group-hover:opacity-100">
+                + Log
+              </div>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div *ngIf="!loading()" class="flex items-center gap-5 mt-4 px-1">
+      <span class="text-gray-700 text-xs">Legend:</span>
+      <div *ngFor="let l of [
+        {label:'Present', color:'bg-emerald-400'},
+        {label:'Remote',  color:'bg-indigo-400'},
+        {label:'Late',    color:'bg-amber-400'},
+        {label:'Half Day',color:'bg-teal-400'},
+        {label:'Absent',  color:'bg-red-400'},
+        {label:'Sick Leave',color:'bg-pink-400'},
+        {label:'Vacation',color:'bg-purple-400'}
+      ]" class="flex items-center gap-1.5">
+        <div class="w-2 h-2 rounded-full" [ngClass]="l.color"></div>
+        <span class="text-gray-600 text-xs">{{ l.label }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Modal ──────────────────────────────────────────────────────────────── -->
+<div *ngIf="showModal()" class="fixed inset-0 z-50 flex items-center justify-center">
+
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeModal()"></div>
+
+  <!-- Modal panel -->
+  <div class="relative bg-[#111318] border border-[#1e2130] rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
+
+    <!-- Modal header -->
+    <div class="flex items-center justify-between px-6 py-5 border-b border-[#1e2130]">
+      <div>
+        <h3 class="text-white font-bold text-base">Log Attendance</h3>
+        <p class="text-gray-500 text-xs mt-0.5">{{ formatModalDate(modalDate()) }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- Delete if record exists -->
+        <button *ngIf="recordByDate(modalDate())"
+                (click)="deleteRecord()"
+                class="text-gray-600 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-500/10"
+                title="Delete record">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/>
+          </svg>
+        </button>
+        <button (click)="closeModal()"
+                class="text-gray-600 hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-[#1a1d27]">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal body -->
+    <div class="px-6 py-5 space-y-4">
+
+      <!-- Status -->
+      <div>
+        <label class="block text-xs text-gray-500 uppercase tracking-widest mb-1.5">Status</label>
+        <select [ngModel]="modalStatus()" (ngModelChange)="modalStatus.set($event)"
+                class="w-full bg-[#1a1d27] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors">
+          <option value="PRESENT">Present</option>
+          <option value="REMOTE">Remote</option>
+          <option value="LATE">Late</option>
+          <option value="HALF_DAY">Half Day</option>
+          <option value="ABSENT">Absent</option>
+          <option value="SICK_LEAVE">Sick Leave</option>
+          <option value="VACATION">Vacation</option>
+        </select>
+      </div>
+
+      <!-- Times -->
+      <div class="grid grid-cols-2 gap-4" [ngClass]="noTimeStatus ? 'opacity-30 pointer-events-none' : ''">
+        <div>
+          <label class="block text-xs text-gray-500 uppercase tracking-widest mb-1.5">Check-in</label>
+          <input type="time" [ngModel]="modalCheckIn()" (ngModelChange)="modalCheckIn.set($event)"
+                 class="w-full bg-[#1a1d27] border border-[#1e2130] text-white text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 transition-colors" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 uppercase tracking-widest mb-1.5">Check-out</label>
+          <input type="time" [ngModel]="modalCheckOut()" (ngModelChange)="modalCheckOut.set($event)"
+                 class="w-full bg-[#1a1d27] border border-[#1e2130] text-white text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500 transition-colors" />
+        </div>
+      </div>
+
+      <!-- Note -->
+      <div>
+        <label class="block text-xs text-gray-500 uppercase tracking-widest mb-1.5">Note (optional)</label>
+        <input type="text" [ngModel]="modalNote()" (ngModelChange)="modalNote.set($event)"
+               placeholder="e.g. Working from home, traffic delay…"
+               class="w-full bg-[#1a1d27] border border-[#1e2130] text-white text-sm rounded-lg px-3 py-2.5 placeholder-gray-700 focus:outline-none focus:border-blue-500 transition-colors" />
+      </div>
+
+      <!-- Worklog -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs text-gray-500 uppercase tracking-widest">Worklog</label>
+          <button (click)="addWorklogRow()"
+                  class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add issue
+          </button>
+        </div>
+        <div class="flex flex-col gap-2">
+          <div *ngFor="let row of modalWorklogs(); let i = index" class="flex items-center gap-2">
+            <select [ngModel]="row.issueId" (ngModelChange)="updateWorklogIssue(i, $event)"
+                    class="flex-1 bg-[#1a1d27] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors">
+              <option [value]="0" disabled>Select issue…</option>
+              <option *ngFor="let issue of myIssues()" [value]="issue.id">
+                {{ issue.issueKey }} — {{ issue.title }}
+              </option>
+            </select>
+            <input type="number" min="0.5" max="12" step="0.5"
+                   [ngModel]="row.hours" (ngModelChange)="updateWorklogHours(i, $event)"
+                   placeholder="0"
+                   class="w-20 bg-[#1a1d27] border border-[#1e2130] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors text-center" />
+            <span class="text-gray-600 text-xs flex-shrink-0">h</span>
+            <button *ngIf="modalWorklogs().length > 1" (click)="removeWorklogRow(i)"
+                    class="text-gray-600 hover:text-red-400 transition-colors p-1 rounded hover:bg-red-500/10 flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal footer -->
+    <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#1e2130]">
+      <button (click)="closeModal()"
+              class="text-gray-400 hover:text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#1a1d27] transition-colors">
+        Cancel
+      </button>
+      <button (click)="saveModal()" [disabled]="saving()"
+              class="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors flex items-center gap-2">
+        <svg *ngIf="saving()" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+        {{ saving() ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+
+  </div>
+</div>

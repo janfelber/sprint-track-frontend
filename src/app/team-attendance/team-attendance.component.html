@@ -1,0 +1,192 @@
+<div class="flex-1 flex overflow-hidden bg-[#0d0f17]">
+
+  <!-- Left panel — member list -->
+  <aside class="w-64 min-w-64 border-r border-[#1e2130] flex flex-col overflow-hidden">
+    <div class="px-5 py-4 border-b border-[#1e2130]">
+      <h2 class="text-white text-sm font-bold">Team Members</h2>
+      <p class="text-gray-600 text-xs mt-0.5">{{ members().length }} members</p>
+    </div>
+    <div class="flex-1 overflow-y-auto py-2">
+      <div *ngIf="membersLoading()" class="flex items-center justify-center py-8">
+        <div class="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+      <button *ngFor="let m of members(); let i = index"
+              (click)="selectedMemberId.set(m.id)"
+              class="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#1a1d27]"
+              [ngClass]="selectedMemberId() === m.id ? 'bg-[#1a1d27] border-r-2 border-blue-500' : ''">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0"
+             [ngClass]="getMemberColor(i)">
+          {{ getMemberInitials(m.name) }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate"
+               [ngClass]="selectedMemberId() === m.id ? 'text-white' : 'text-gray-400'">
+            {{ m.name }}
+          </div>
+          <div class="text-xs text-gray-600">{{ m.department }}</div>
+        </div>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Right panel — calendar -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between px-8 py-5 border-b border-[#1e2130] flex-shrink-0">
+      <div class="flex items-center gap-3" *ngIf="selectedMember() as member">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+             [ngClass]="getMemberColor(members().indexOf(member))">
+          {{ getMemberInitials(member.name) }}
+        </div>
+        <div>
+          <h1 class="text-white text-xl font-bold tracking-tight">{{ member.name }}</h1>
+          <p class="text-gray-500 text-sm">{{ member.department }}</p>
+        </div>
+      </div>
+      <!-- Month navigation -->
+      <div class="flex items-center gap-3">
+        <button (click)="prevMonth()"
+                class="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-[#1a1d27] transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span class="text-white text-sm font-semibold w-36 text-center">{{ monthLabel() }}</span>
+        <button (click)="nextMonth()"
+                class="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-[#1a1d27] transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div *ngIf="recordsLoading()" class="flex-1 flex items-center justify-center bg-[#0d0f17]">
+      <div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <div *ngIf="!recordsLoading()" class="flex-1 overflow-y-auto px-8 py-6 bg-[#0d0f17]">
+
+      <!-- Stats -->
+      <div class="grid grid-cols-5 gap-3 mb-6">
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></div>
+          <div>
+            <p class="text-gray-500 text-xs">Present</p>
+            <p class="text-emerald-400 text-xl font-bold">{{ monthStats().present }}</p>
+          </div>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-indigo-400 flex-shrink-0"></div>
+          <div>
+            <p class="text-gray-500 text-xs">Remote</p>
+            <p class="text-indigo-400 text-xl font-bold">{{ monthStats().remote }}</p>
+          </div>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></div>
+          <div>
+            <p class="text-gray-500 text-xs">Late / Half</p>
+            <p class="text-amber-400 text-xl font-bold">{{ monthStats().late + monthStats().halfDay }}</p>
+          </div>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-red-400 flex-shrink-0"></div>
+          <div>
+            <p class="text-gray-500 text-xs">Absent / Leave</p>
+            <p class="text-red-400 text-xl font-bold">{{ monthStats().absent + monthStats().sickLeave + monthStats().vacation }}</p>
+          </div>
+        </div>
+        <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-4 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-blue-400 flex-shrink-0"></div>
+          <div>
+            <p class="text-gray-500 text-xs">Hours logged</p>
+            <p class="text-blue-400 text-xl font-bold">{{ monthStats().totalHours }}h</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+
+        <!-- Day headers -->
+        <div class="grid grid-cols-7 border-b border-[#1e2130]">
+          <div *ngFor="let d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']"
+               class="text-center text-[11px] uppercase tracking-widest font-semibold py-3"
+               [ngClass]="d === 'Sat' || d === 'Sun' ? 'text-gray-700' : 'text-gray-600'">
+            {{ d }}
+          </div>
+        </div>
+
+        <!-- Day cells -->
+        <div class="grid grid-cols-7">
+          <div *ngFor="let dateStr of calendarDays(); let i = index"
+               class="min-h-[90px] border-b border-r border-[#1a1d27]"
+               [ngClass]="{
+                 'border-r-0': (i + 1) % 7 === 0,
+                 'border-b-0': i >= calendarDays().length - 7
+               }">
+
+            <ng-container *ngIf="!dateStr">
+              <div class="min-h-[90px]"></div>
+            </ng-container>
+
+            <ng-container *ngIf="dateStr">
+              <div (click)="toggleDay(dateStr)"
+                   class="min-h-[90px] p-2 flex flex-col h-full border transition-all"
+                   [ngClass]="[
+                     isWeekend(dateStr) ? 'cursor-default opacity-40 border-transparent' : (recordByDate(dateStr)?.worklogs?.length ? 'cursor-pointer hover:border-blue-500/40' : 'cursor-default') + ' border-transparent',
+                     getDayBg(dateStr)
+                   ]">
+
+                <!-- Day number + dot -->
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold"
+                        [ngClass]="isWeekend(dateStr) ? 'text-gray-700' : recordByDate(dateStr) ? 'text-white' : 'text-gray-500'">
+                    {{ dateStr.split('-')[2] | number:'1.0-0' }}
+                  </span>
+                  <div *ngIf="recordByDate(dateStr) as rec"
+                       class="w-2 h-2 rounded-full" [ngClass]="getStatusDot(rec.status)"></div>
+                </div>
+
+                <!-- Record -->
+                <ng-container *ngIf="recordByDate(dateStr) as rec">
+                  <span class="text-[10px] font-semibold leading-none mb-1" [ngClass]="getStatusColor(rec.status)">
+                    {{ getStatusLabel(rec.status) }}
+                  </span>
+                  <div *ngIf="rec.checkInTime" class="text-[10px] text-gray-600 font-mono leading-none mb-1">
+                    {{ rec.checkInTime }}
+                  </div>
+                  <div *ngIf="totalHours(rec) > 0" class="mt-auto text-[10px] font-semibold text-blue-400 font-mono">
+                    {{ totalHours(rec) }}h logged
+                  </div>
+                  <div *ngIf="expandedDate() === dateStr" class="flex flex-col gap-0.5 mt-1">
+                    <div *ngFor="let w of rec.worklogs" class="text-[9px] text-gray-500 truncate">
+                      {{ w.issueKey }} · {{ w.hours }}h
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex items-center gap-5 mt-4 px-1">
+        <span class="text-gray-700 text-xs">Legend:</span>
+        <div *ngFor="let l of [
+          {label:'Present',color:'bg-emerald-400'},{label:'Remote',color:'bg-indigo-400'},
+          {label:'Late',color:'bg-amber-400'},{label:'Half Day',color:'bg-teal-400'},
+          {label:'Absent',color:'bg-red-400'},{label:'Sick Leave',color:'bg-pink-400'},
+          {label:'Vacation',color:'bg-purple-400'}
+        ]" class="flex items-center gap-1.5">
+          <div class="w-2 h-2 rounded-full" [ngClass]="l.color"></div>
+          <span class="text-gray-600 text-xs">{{ l.label }}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

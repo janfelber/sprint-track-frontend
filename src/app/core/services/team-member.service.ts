@@ -12,6 +12,12 @@ export interface TeamMemberDTO {
   joinedDate: string;
 }
 
+export interface TeamMemberLightDTO {
+  id: number;
+  name: string;
+  department: string;
+}
+
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;
@@ -24,9 +30,14 @@ export interface PageResponse<T> {
 export class TeamMemberService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = 'http://localhost:8080/admin/team-members';
+  private readonly apiBaseUrl = 'http://localhost:8080/team-members';
 
   getAll(page = 0, size = 100): Observable<PageResponse<TeamMemberDTO>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<PageResponse<TeamMemberDTO>>(this.baseUrl, { params });
+  }
+
+  getLight(): Observable<TeamMemberLightDTO[]> {
+    return this.http.get<TeamMemberLightDTO[]>(`${this.apiBaseUrl}/light`);
   }
 }

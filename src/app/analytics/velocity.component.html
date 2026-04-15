@@ -1,0 +1,167 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17]">
+
+  <!-- Header -->
+  <header class="bg-[#0d0f17] border-b border-[#1e2130] px-7 h-[60px] flex items-center justify-between flex-shrink-0">
+    <div>
+      <h1 class="text-base font-bold text-white leading-tight">Velocity &amp; Burndown</h1>
+      <p class="text-xs text-gray-500">Sprint performance · {{ velocityBars().length }} sprints</p>
+    </div>
+  </header>
+
+  <main class="flex-1 overflow-y-auto p-6 bg-[#0d0f17]">
+
+    <!-- KPI cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Avg Velocity</div>
+        <div class="text-2xl font-bold text-white leading-none">{{ avgVelocity() }} <span class="text-base font-medium text-gray-600">SP</span></div>
+        <div class="text-[11px] text-gray-600 mt-1.5">completed sprints avg</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Current Sprint</div>
+        <div class="text-2xl font-bold text-white leading-none">
+            {{ activeSprint()?.completed }}<span class="text-gray-600 text-base font-medium"> / {{ activeSprint()?.committed }}</span>
+        </div>
+        <div class="text-[11px] text-blue-400 mt-1.5">{{ activeSprint()?.label }} in progress</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Best Sprint</div>
+        <div class="text-2xl font-bold text-emerald-400 leading-none">{{ highestSprint()?.completed }} <span class="text-base font-medium text-gray-600">SP</span></div>
+        <div class="text-[11px] text-gray-600 mt-1.5">{{ highestSprint()?.label }}</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Last Sprint Trend</div>
+        <div class="text-2xl font-bold leading-none" [ngClass]="trend() >= 0 ? 'text-emerald-400' : 'text-red-400'">
+          {{ trend() >= 0 ? '+' : '' }}{{ trend() }} <span class="text-base font-medium text-gray-600">SP</span>
+        </div>
+        <div class="text-[11px] text-gray-600 mt-1.5">vs previous sprint</div>
+      </div>
+    </div>
+
+    <!-- Velocity Chart -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden mb-4">
+      <div class="px-5 py-4 border-b border-[#1e2130] flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-white">Team Velocity</div>
+          <div class="text-xs text-gray-500 mt-0.5">Committed vs completed story points per sprint</div>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+            <div class="w-3 h-3 rounded-sm bg-[#1e2235]"></div>Committed
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+            <div class="w-3 h-3 rounded-sm bg-blue-500"></div>Completed
+          </div>
+        </div>
+      </div>
+      <div class="px-5 pt-4 pb-2">
+        <!-- Chart -->
+        <div class="flex items-end gap-1.5" style="height: 180px;">
+          <div *ngFor="let v of velocityBars()"
+               class="flex-1 flex flex-col items-center gap-0.5 justify-end h-full">
+            <span class="text-[9px] font-semibold text-gray-600 mb-0.5">{{ v.completed }}</span>
+            <div class="w-full flex gap-px items-end">
+              <div class="flex-1 rounded-t"
+                   [ngClass]="v.active ? 'bg-[#2d3148]' : 'bg-[#1e2235]'"
+                   [style.height.px]="getBarHeight(v.committed)">
+              </div>
+              <div class="flex-1 rounded-t"
+                   [ngClass]="v.active ? 'bg-blue-500' : 'bg-blue-500/60'"
+                   [style.height.px]="getBarHeight(v.completed)">
+              </div>
+            </div>
+            <span class="text-[9px] mt-1"
+                  [ngClass]="v.active ? 'text-blue-400 font-bold' : 'text-gray-600'">
+              {{ v.label }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Burndown Chart -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#1e2130] flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-white">Burndown Chart{{ activeSprint() ? ' — ' + activeSprint()!.label : '' }}</div>
+          <div class="text-xs text-gray-500 mt-0.5">Remaining story points per day{{ burndownDateRange() ? ' · ' + burndownDateRange() : '' }}</div>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="flex items-center gap-2 text-[11px] text-gray-500">
+            <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="4 3"/></svg>
+            Ideal
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-gray-500">
+            <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#3b82f6" stroke-width="2"/></svg>
+            Actual
+          </div>
+        </div>
+      </div>
+      <div class="px-5 pt-4 pb-3">
+        <svg [attr.viewBox]="svgViewBox" class="w-full" style="overflow:visible">
+          <defs>
+            <linearGradient id="burnGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Grid lines + Y labels -->
+          <ng-container *ngFor="let g of yGridLines()">
+            <line [attr.x1]="pad.left" [attr.y1]="g.y"
+                  [attr.x2]="svgW - pad.right" [attr.y2]="g.y"
+                  stroke="#1e2130" stroke-width="1"/>
+            <text [attr.x]="pad.left - 5" [attr.y]="g.y + 3.5"
+                  text-anchor="end" font-size="8" fill="#4b5563">{{ g.value }}</text>
+          </ng-container>
+
+            <!-- Ideal line -->
+            <path
+                    [attr.d]="idealPath()"
+                    stroke="#374151"
+                    stroke-width="1.5"
+                    stroke-dasharray="5 3"
+                    fill="none"
+            />
+
+            <!-- Actual area -->
+            <path
+                    [attr.d]="areaPath()"
+                    fill="url(#burnGrad)"
+            />
+
+            <!-- Actual line -->
+            <path
+                    [attr.d]="actualPath()"
+                    stroke="#3b82f6"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+            />
+
+          <!-- Today marker -->
+          <ng-container *ngIf="labelPositions().length > 0">
+            <line [attr.x1]="labelPositions()[todayIndex()].x" [attr.y1]="pad.top"
+                  [attr.x2]="labelPositions()[todayIndex()].x" [attr.y2]="pad.top + svgH"
+                  stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 2" opacity="0.5"/>
+            <text [attr.x]="labelPositions()[todayIndex()].x" [attr.y]="pad.top - 2"
+                  text-anchor="middle" font-size="8" fill="#60a5fa">Today</text>
+          </ng-container>
+
+          <!-- Actual dots -->
+          <circle *ngFor="let p of points()"
+                  [attr.cx]="p.x" [attr.cy]="p.y" r="3" fill="#3b82f6"/>
+
+          <!-- X axis labels (every other to avoid overlap) -->
+          <ng-container *ngFor="let l of labelPositions(); let i = index">
+            <text *ngIf="i % 2 === 0"
+                  [attr.x]="l.x" [attr.y]="pad.top + svgH + 14"
+                  text-anchor="middle" font-size="8" fill="#4b5563">{{ l.shortLabel }}</text>
+          </ng-container>
+        </svg>
+      </div>
+    </div>
+
+  </main>
+</div>

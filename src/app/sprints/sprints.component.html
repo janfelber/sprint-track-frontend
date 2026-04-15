@@ -1,0 +1,53 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17]">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-8 py-5 border-b border-[#1e2130] flex-shrink-0">
+    <div>
+      <h1 class="text-white text-xl font-bold tracking-tight">Sprints</h1>
+      <p class="text-gray-500 text-sm mt-0.5">All project sprints</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span *ngIf="lastSynced()" class="text-gray-600 text-xs">Last synced: {{ lastSynced() }}</span>
+      <button (click)="sync()" [disabled]="syncing()"
+              class="flex items-center gap-2 bg-[#111318] border border-[#1e2130] hover:border-blue-500/50 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-all disabled:opacity-50">
+        <svg class="w-4 h-4" [class.animate-spin]="syncing()" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        {{ syncing() ? 'Syncing...' : 'Sync with Redmine' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto px-8 py-6">
+    <div *ngIf="loading()" class="flex items-center justify-center h-40 text-gray-600 text-sm">
+      Loading sprints...
+    </div>
+    <div *ngIf="!loading()" class="space-y-3">
+      <div *ngFor="let sprint of sprints()"
+           (click)="openSprint(sprint.id)"
+           class="bg-[#111318] border border-[#1e2130] rounded-xl px-6 py-4 cursor-pointer hover:border-blue-500/30 hover:bg-[#13161f] transition-all group">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" [ngClass]="getStatusClasses(sprint.status)">
+              {{ sprint.status }}
+            </span>
+            <span class="text-white font-semibold group-hover:text-blue-400 transition-colors">{{ sprint.name }}</span>
+          </div>
+          <div class="flex items-center gap-6 text-sm text-gray-500">
+            <span *ngIf="sprint.issueCount > 0" class="text-xs">
+              <span class="text-emerald-400 font-semibold">{{ sprint.doneCount }}</span>
+              / {{ sprint.issueCount }} issues done
+            </span>
+            <span class="text-xs">{{ sprint.startDate }} – {{ sprint.endDate }}</span>
+            <svg class="w-4 h-4 text-gray-700 group-hover:text-gray-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-gray-600 text-xs mt-2 ml-0">{{ sprint.goal }}</p>
+      </div>
+    </div>
+  </div>
+
+</div>

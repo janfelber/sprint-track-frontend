@@ -57,3 +57,4 @@ export class WorkloadComponent implements OnInit {
     if (percentage >= 50)   return 'text-blue-400';
     return 'text-gray-500';
   }
+}

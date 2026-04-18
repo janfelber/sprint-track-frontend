@@ -2,8 +2,13 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { IssueService, IssueDTO } from '../core/services/issue.service';
-import {SprintService} from "../core/services/sprint.service";
+import { IssueService, IssueDTO, AssignedIssueDTO } from '../core/services/issue.service';
+import { SprintService } from '../core/services/sprint.service';
+import { AuthService } from '../core/services/auth.service';
+
+export type DisplayIssue =
+  Pick<IssueDTO, 'id' | 'issueKey' | 'title' | 'issueType' | 'status' | 'storyPoints'>
+  & Partial<Pick<IssueDTO, 'sprint' | 'assignee' | 'timeEstimated'>>;
 
 @Component({
   selector: 'app-issues',
@@ -14,14 +19,17 @@ import {SprintService} from "../core/services/sprint.service";
 export class IssuesComponent implements OnInit {
   private readonly issueService = inject(IssueService);
   private readonly sprintService = inject(SprintService);
+  private readonly auth = inject(AuthService);
 
-  issues  = signal<IssueDTO[]>([]);
+  issues  = signal<DisplayIssue[]>([]);
   sprints = signal<string[]>([]);
   loading = signal(true);
 
   filterSprint = signal<string>('ALL');
   filterStatus = signal<string>('ALL');
   searchQuery  = signal('');
+
+  isEmployee = computed(() => this.auth.role() === 'EMPLOYEE');
 
   filtered = computed(() => {
     const q = this.searchQuery().toLowerCase();
@@ -36,17 +44,28 @@ export class IssuesComponent implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.sprintService.getAllNames().subscribe(names => {
-      this.sprints.set(names);
-    });
+    if (this.isEmployee()) {
+      const userId = this.auth.user()?.id;
+      if (userId) {
+        this.issueService.getAssignedToMember(userId).subscribe({
+          next: (assigned: AssignedIssueDTO[]) => {
+            this.issues.set(assigned);
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
+      }
+    } else {
+      this.sprintService.getAllNames().subscribe(names => this.sprints.set(names));
 
-    this.issueService.getAll().subscribe({
-      next: page => {
-        this.issues.set(page.content);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+      this.issueService.getAll().subscribe({
+        next: page => {
+          this.issues.set(page.content);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+    }
   }
 
   getStatusClasses(status: string): string {

@@ -22,22 +22,32 @@
                class="w-full bg-[#111318] border border-[#1e2130] text-white text-sm rounded-lg pl-9 pr-4 py-2 placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors" />
       </div>
 
-      <!-- Sprint filter -->
-      <select [ngModel]="filterSprint()" (ngModelChange)="filterSprint.set($event)"
-              class="bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors">
-        <option value="ALL">All Sprints</option>
-        <option *ngFor="let s of sprints()" [value]="s">{{ s }}</option>
-      </select>
+      <!-- Sprint filter — hidden for employees (they only see active sprint issues) -->
+      <div class="relative" *ngIf="!isEmployee()">
+        <select [ngModel]="filterSprint()" (ngModelChange)="filterSprint.set($event)"
+                class="appearance-none bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors">
+          <option value="ALL">All Sprints</option>
+          <option *ngFor="let s of sprints()" [value]="s">{{ s }}</option>
+        </select>
+        <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
 
       <!-- Status filter -->
-      <select [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)"
-              class="bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors">
-        <option value="ALL">All Statuses</option>
-        <option value="TO_DO">To Do</option>
-        <option value="IN_PROGRESS">In Progress</option>
-        <option value="IN_REVIEW">In Review</option>
-        <option value="DONE">Done</option>
-      </select>
+      <div class="relative">
+        <select [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)"
+                class="appearance-none bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors">
+          <option value="ALL">All Statuses</option>
+          <option value="TO_DO">To Do</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="IN_REVIEW">In Review</option>
+          <option value="DONE">Done</option>
+        </select>
+        <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
 
       <span class="text-gray-600 text-sm ml-auto">{{ filtered().length }} issues</span>
     </div>
@@ -54,11 +64,11 @@
           <tr class="border-b border-[#1e2130]">
             <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Key</th>
             <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Title</th>
-            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Sprint</th>
+            <th *ngIf="!isEmployee()" class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Sprint</th>
             <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Status</th>
-            <th class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Assignee</th>
+            <th *ngIf="!isEmployee()" class="text-left text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Assignee</th>
             <th class="text-right text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">SP</th>
-            <th class="text-right text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Est. h</th>
+            <th *ngIf="!isEmployee()" class="text-right text-[11px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-3">Est. h</th>
           </tr>
         </thead>
         <tbody>
@@ -73,19 +83,19 @@
                 <span class="text-gray-300 font-medium truncate">{{ issue.title }}</span>
               </div>
             </td>
-            <td class="px-5 py-3 text-xs text-gray-500">{{ issue.sprint }}</td>
+            <td *ngIf="!isEmployee()" class="px-5 py-3 text-xs text-gray-500">{{ issue.sprint }}</td>
             <td class="px-5 py-3">
               <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="getStatusClasses(issue.status)">
                 {{ issue.status.replace('_', ' ') }}
               </span>
             </td>
-            <td class="px-5 py-3 text-xs text-gray-400">{{ issue.assignee }}</td>
+            <td *ngIf="!isEmployee()" class="px-5 py-3 text-xs text-gray-400">{{ issue.assignee }}</td>
             <td class="px-5 py-3 text-right text-gray-400 text-xs font-semibold">{{ issue.storyPoints }}</td>
-            <td class="px-5 py-3 text-right text-gray-500 text-xs font-mono">{{ issue.timeEstimated }}h</td>
+            <td *ngIf="!isEmployee()" class="px-5 py-3 text-right text-gray-500 text-xs font-mono">{{ issue.timeEstimated }}h</td>
           </tr>
 
           <tr *ngIf="filtered().length === 0">
-            <td colspan="7" class="px-5 py-12 text-center text-gray-600">No issues found.</td>
+            <td [attr.colspan]="isEmployee() ? 4 : 7" class="px-5 py-12 text-center text-gray-600">No issues found.</td>
           </tr>
         </tbody>
       </table>

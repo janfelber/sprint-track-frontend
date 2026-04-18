@@ -16,6 +16,22 @@ export interface BurndownPoint {
     remaining: number;
 }
 
+export interface MemberWorkload {
+    memberId: number;
+    name: string;
+    committed: number;
+    completed: number;
+    inProgress: number;
+    notStarted: number;
+    issueCount: number;
+    completionPct: number;
+}
+
+export interface WorkloadData {
+    sprintName: string;
+    members: MemberWorkload[];
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
@@ -28,5 +44,9 @@ export class AnalyticsService {
 
     getBurndown(): Observable<BurndownPoint[]> {
         return this.http.get<BurndownPoint[]>(`${this.baseUrl}/burndown`);
+    }
+
+    getWorkload(): Observable<WorkloadData> {
+        return this.http.get<WorkloadData>(`${this.baseUrl}/workload`);
     }
 }

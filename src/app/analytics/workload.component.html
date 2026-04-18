@@ -1,0 +1,149 @@
+<div class="flex-1 flex flex-col overflow-hidden bg-[#0d0f17]">
+
+  <!-- Header -->
+  <header class="bg-[#0d0f17] border-b border-[#1e2130] px-7 h-[60px] flex items-center flex-shrink-0">
+    <div>
+      <h1 class="text-base font-bold text-white leading-tight">Team Workload</h1>
+      <p class="text-xs text-gray-500">{{ sprintName() }} · story points per member</p>
+    </div>
+  </header>
+
+  <main class="flex-1 overflow-y-auto p-6 bg-[#0d0f17]">
+
+    <!-- KPI cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Total SP This Sprint</div>
+        <div class="text-2xl font-bold text-white leading-none">{{ totalSP() }}</div>
+        <div class="text-[11px] text-gray-600 mt-1.5">across {{ workload().length }} members</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Avg SP per Member</div>
+        <div class="text-2xl font-bold text-white leading-none">{{ avgSP() }}</div>
+        <div class="text-[11px] text-gray-600 mt-1.5">story points</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Most Loaded</div>
+        <div *ngIf="mostLoaded()" class="flex items-center gap-2 mt-2">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+               [ngClass]="getAvatarColor(mostLoaded()!.name)">{{ getInitials(mostLoaded()!.name) }}</div>
+          <div>
+            <div class="text-sm font-bold text-white leading-none">{{ mostLoaded()!.committed }} SP</div>
+            <div class="text-[11px] text-gray-500 mt-0.5">{{ mostLoaded()!.name.split(' ')[0] }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Overall Completion</div>
+        <div class="text-2xl font-bold text-emerald-400 leading-none">{{ overallCompletion() }}%</div>
+        <div class="w-full h-1.5 bg-[#1e2130] rounded-full overflow-hidden mt-2.5">
+          <div class="h-full bg-emerald-500 rounded-full" [style.width.%]="overallCompletion()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workload distribution bars -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden mb-4">
+      <div class="px-5 py-4 border-b border-[#1e2130] flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-white">Workload Distribution</div>
+          <div class="text-xs text-gray-500 mt-0.5">Story points by status · {{ sprintName() }}</div>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+            <div class="w-3 h-3 rounded-sm bg-emerald-500"></div>Done
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+            <div class="w-3 h-3 rounded-sm bg-blue-500/70"></div>In Progress
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+            <div class="w-3 h-3 rounded-sm bg-gray-700"></div>Not Started
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-4 flex flex-col gap-3">
+        <div *ngFor="let member of workload()" class="flex items-center gap-3">
+          <!-- Avatar -->
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+               [ngClass]="getAvatarColor(member.name)">{{ getInitials(member.name) }}</div>
+          <!-- Name -->
+          <div class="w-32 flex-shrink-0">
+            <div class="text-xs font-medium text-gray-300 truncate">{{ member.name }}</div>
+            <div class="text-[10px] text-gray-600">{{ member.issueCount }} issues</div>
+          </div>
+          <!-- Stacked bar -->
+          <div class="flex-1 h-5 bg-[#1a1d27] rounded overflow-hidden flex">
+            <div class="h-full bg-emerald-500 transition-all"
+                 [style.width.%]="(member.completed / maxCommitted()) * 100"></div>
+            <div class="h-full bg-blue-500/70 transition-all"
+                 [style.width.%]="(member.inProgress / maxCommitted()) * 100"></div>
+            <div class="h-full bg-gray-700 transition-all"
+                 [style.width.%]="(member.notStarted / maxCommitted()) * 100"></div>
+          </div>
+          <!-- SP total -->
+          <div class="w-14 text-right flex-shrink-0">
+            <span class="text-xs font-bold text-gray-400">{{ member.committed }} SP</span>
+          </div>
+          <!-- % done -->
+          <div class="w-10 text-right flex-shrink-0">
+            <span class="text-[11px] font-semibold" [ngClass]="getCompletionClasses(member.completionPct)">
+              {{ member.completionPct }}%
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Member summary table -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#1e2130]">
+        <div class="text-sm font-semibold text-white">Member Summary</div>
+        <div class="text-xs text-gray-500 mt-0.5">{{ sprintName() }} · detailed breakdown</div>
+      </div>
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-[#1e2130]">
+            <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">Member</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Issues</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Done SP</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">In Progress SP</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Not Started SP</th>
+            <th class="text-right text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">Total SP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of workload()"
+              class="border-b border-[#1a1d27] last:border-0 hover:bg-[#1a1d27] transition-colors">
+            <td class="px-5 py-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                     [ngClass]="getAvatarColor(m.name)">{{ getInitials(m.name) }}</div>
+                <span class="text-sm font-medium text-gray-300">{{ m.name }}</span>
+              </div>
+            </td>
+            <td class="px-3 py-3 text-center text-sm text-gray-400">{{ m.issueCount }}</td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-sm font-semibold" [ngClass]="m.completed > 0 ? 'text-emerald-400' : 'text-gray-600'">
+                {{ m.completed > 0 ? m.completed : '—' }}
+              </span>
+            </td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-sm font-semibold" [ngClass]="m.inProgress > 0 ? 'text-blue-400' : 'text-gray-600'">
+                {{ m.inProgress > 0 ? m.inProgress : '—' }}
+              </span>
+            </td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-sm font-semibold" [ngClass]="m.notStarted > 0 ? 'text-gray-400' : 'text-gray-600'">
+                {{ m.notStarted > 0 ? m.notStarted : '—' }}
+              </span>
+            </td>
+            <td class="px-5 py-3 text-right">
+              <span class="text-sm font-bold text-white">{{ m.committed }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>

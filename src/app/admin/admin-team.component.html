@@ -45,23 +45,33 @@
       </div>
 
       <!-- Role filter -->
-      <select [ngModel]="filterRole()"
-              (ngModelChange)="filterRole.set($event)"
-              class="bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
-        <option value="ALL">All Roles</option>
-        <option value="ADMIN">Admin</option>
-        <option value="SCRUM_MASTER">Scrum Master</option>
-        <option value="EMPLOYEE">Employee</option>
-      </select>
+      <div class="relative">
+        <select [ngModel]="filterRole()"
+                (ngModelChange)="filterRole.set($event)"
+                class="appearance-none bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
+          <option value="ALL">All Roles</option>
+          <option value="ADMIN">Admin</option>
+          <option value="SCRUM_MASTER">Scrum Master</option>
+          <option value="EMPLOYEE">Employee</option>
+        </select>
+        <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
 
       <!-- Status filter -->
-      <select [ngModel]="filterStatus()"
-              (ngModelChange)="filterStatus.set($event)"
-              class="bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
-        <option value="ALL">All Statuses</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <div class="relative">
+        <select [ngModel]="filterStatus()"
+                (ngModelChange)="filterStatus.set($event)"
+                class="appearance-none bg-[#111318] border border-[#1e2130] text-gray-300 text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer">
+          <option value="ALL">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
 
       <span class="text-gray-600 text-sm ml-auto">{{ filtered().length }} member{{ filtered().length !== 1 ? 's' : '' }}</span>
     </div>
@@ -101,14 +111,19 @@
 
             <!-- Role dropdown -->
             <td class="px-5 py-3.5">
-              <select [ngModel]="m.role"
-                      (ngModelChange)="changeRole(m.id, $event)"
-                      class="bg-[#1a1d27] border border-[#1e2130] text-xs font-semibold rounded-full px-3 py-1 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors"
-                      [ngClass]="m.role === 'ADMIN' ? 'text-purple-400' : m.role === 'SCRUM_MASTER' ? 'text-blue-400' : 'text-emerald-400'">
-                <option value="ADMIN">Admin</option>
-                <option value="SCRUM_MASTER">Scrum Master</option>
-                <option value="EMPLOYEE">Employee</option>
-              </select>
+              <div class="relative inline-block">
+                <select [ngModel]="m.role"
+                        (ngModelChange)="changeRole(m.id, $event)"
+                        class="appearance-none bg-[#1a1d27] border border-[#1e2130] text-xs font-semibold rounded-full pl-3 pr-7 py-1 focus:outline-none focus:border-blue-500 cursor-pointer transition-colors"
+                        [ngClass]="m.role === 'ADMIN' ? 'text-purple-400' : m.role === 'SCRUM_MASTER' ? 'text-blue-400' : 'text-emerald-400'">
+                  <option value="ADMIN">Admin</option>
+                  <option value="SCRUM_MASTER">Scrum Master</option>
+                  <option value="EMPLOYEE">Employee</option>
+                </select>
+                <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
             </td>
 
             <!-- Status toggle -->

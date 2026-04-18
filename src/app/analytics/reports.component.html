@@ -1,0 +1,154 @@
+<div class="flex-1 flex flex-col min-h-0 bg-[#0d0f17]">
+
+  <!-- Header -->
+  <header class="bg-[#0d0f17] border-b border-[#1e2130] px-7 h-[60px] flex items-center justify-between flex-shrink-0">
+    <div>
+      <h1 class="text-base font-bold text-white leading-tight">Sprint Reports</h1>
+      <p class="text-xs text-gray-500">All {{ reports().length }} sprints · summary &amp; metrics</p>
+    </div>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-500 transition-colors" style="color: #ffffff">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Export CSV
+    </button>
+  </header>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="flex-1 flex items-center justify-center text-gray-600">
+    Loading…
+  </div>
+
+  <main *ngIf="!loading()" class="flex-1 overflow-y-auto p-6 bg-[#0d0f17]">
+
+    <!-- KPI cards -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Total SP Delivered</div>
+        <div class="text-2xl font-bold text-white leading-none">{{ totalDelivered() }}</div>
+        <div class="text-[11px] text-gray-600 mt-1.5">across all sprints</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Avg Completion Rate</div>
+        <div class="text-2xl font-bold leading-none" [ngClass]="getCompletionColor(avgCompletion())">{{ avgCompletion() }}%</div>
+        <div class="text-[11px] text-gray-600 mt-1.5">completed sprints</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Total Issues</div>
+        <div class="text-2xl font-bold text-white leading-none">{{ totalIssues() }}</div>
+        <div class="text-[11px] text-gray-600 mt-1.5">all types</div>
+      </div>
+      <div class="bg-[#111318] border border-[#1e2130] rounded-xl p-5">
+        <div class="text-xs text-gray-500 font-medium mb-2">Total Bugs</div>
+        <div class="text-2xl font-bold text-red-400 leading-none">{{ totalBugs() }}</div>
+        <div class="text-[11px] text-gray-600 mt-1.5">across all sprints</div>
+      </div>
+    </div>
+
+    <!-- Sprint table -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden mb-4">
+      <div class="px-5 py-4 border-b border-[#1e2130]">
+        <div class="text-sm font-semibold text-white">Sprint History</div>
+        <div class="text-xs text-gray-500 mt-0.5">Sorted newest first</div>
+      </div>
+      <div class="overflow-y-auto max-h-80">
+      <table class="w-full">
+        <thead class="sticky top-0 bg-[#111318]">
+          <tr class="border-b border-[#1e2130]">
+            <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">Sprint</th>
+            <th class="text-left text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Period</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Status</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Issues</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">SP Done / Total</th>
+            <th class="text-center text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-3 py-2.5">Bugs</th>
+            <th class="text-right text-[10px] uppercase tracking-widest text-gray-600 font-semibold px-5 py-2.5">Completion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of reports()"
+              class="border-b border-[#1a1d27] last:border-0 hover:bg-[#1a1d27] transition-colors">
+            <td class="px-5 py-3">
+              <span class="text-sm font-semibold text-white">{{ report.name }}</span>
+            </td>
+            <td class="px-3 py-3">
+              <span class="text-xs font-mono text-gray-500">{{ report.startDate }} – {{ report.endDate }}</span>
+            </td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" [ngClass]="getStatusClasses(report.status)">
+                {{ report.status }}
+              </span>
+            </td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-sm text-gray-400">
+                <span class="text-emerald-400 font-semibold">{{ report.doneIssues }}</span>
+                <span class="text-gray-600"> / {{ report.totalIssues }}</span>
+              </span>
+            </td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-sm font-bold text-white">{{ report.doneSP }}</span>
+              <span class="text-gray-600 text-sm"> / {{ report.totalSP }}</span>
+            </td>
+            <td class="px-3 py-3 text-center">
+              <span class="text-sm font-semibold" [ngClass]="report.bugCount > 5 ? 'text-red-400' : report.bugCount > 2 ? 'text-amber-400' : 'text-gray-500'">
+                {{ report.bugCount }}
+              </span>
+            </td>
+            <td class="px-5 py-3">
+              <div class="flex items-center justify-end gap-2">
+                <div class="w-20 h-1.5 bg-[#1e2130] rounded-full overflow-hidden">
+                  <div class="h-full rounded-full" [ngClass]="getCompletionBarColor(report.completionPct)" [style.width.%]="report.completionPct"></div>
+                </div>
+                <span class="text-xs font-bold w-8 text-right" [ngClass]="getCompletionColor(report.completionPct)">{{ report.completionPct }}%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- Issue type breakdown -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#1e2130]">
+        <div class="text-sm font-semibold text-white">Issue Type Distribution</div>
+        <div class="text-xs text-gray-500 mt-0.5">All sprints combined</div>
+      </div>
+      <div class="p-5">
+        <!-- Bar -->
+        <div class="h-5 bg-[#1a1d27] rounded overflow-hidden flex mb-4">
+          <div class="h-full bg-blue-500/70 transition-all" [style.width.%]="typeTotal() > 0 ? (totalStories() / typeTotal()) * 100 : 0"></div>
+          <div class="h-full bg-emerald-500/70 transition-all" [style.width.%]="typeTotal() > 0 ? (totalTasks() / typeTotal()) * 100 : 0"></div>
+          <div class="h-full bg-red-500/70 transition-all" [style.width.%]="typeTotal() > 0 ? (totalBugs() / typeTotal()) * 100 : 0"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="flex items-center gap-3 bg-[#1a1d27] rounded-xl px-4 py-3">
+            <div class="w-2.5 h-2.5 rounded-sm bg-blue-500/70 flex-shrink-0"></div>
+            <div>
+              <div class="text-xs text-gray-500">Stories</div>
+              <div class="text-xl font-bold text-white">{{ totalStories() }}</div>
+              <div class="text-[11px] text-gray-600">{{ typeTotal() > 0 ? ((totalStories() / typeTotal()) * 100).toFixed(0) : 0 }}% of total</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-[#1a1d27] rounded-xl px-4 py-3">
+            <div class="w-2.5 h-2.5 rounded-sm bg-emerald-500/70 flex-shrink-0"></div>
+            <div>
+              <div class="text-xs text-gray-500">Tasks &amp; Subtasks</div>
+              <div class="text-xl font-bold text-white">{{ totalTasks() }}</div>
+              <div class="text-[11px] text-gray-600">{{ typeTotal() > 0 ? ((totalTasks() / typeTotal()) * 100).toFixed(0) : 0 }}% of total</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-[#1a1d27] rounded-xl px-4 py-3">
+            <div class="w-2.5 h-2.5 rounded-sm bg-red-500/70 flex-shrink-0"></div>
+            <div>
+              <div class="text-xs text-gray-500">Bugs</div>
+              <div class="text-xl font-bold text-red-400">{{ totalBugs() }}</div>
+              <div class="text-[11px] text-gray-600">{{ typeTotal() > 0 ? ((totalBugs() / typeTotal()) * 100).toFixed(0) : 0 }}% of total</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

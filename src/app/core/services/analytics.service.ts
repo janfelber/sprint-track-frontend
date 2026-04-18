@@ -32,6 +32,21 @@ export interface WorkloadData {
     members: MemberWorkload[];
 }
 
+export interface SprintReport {
+    id: number;
+    name: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    totalIssues: number;
+    doneIssues: number;
+    totalSP: number;
+    doneSP: number;
+    completionPct: number;
+    bugCount: number;
+    storyCount: number;
+    taskCount: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
@@ -48,5 +63,9 @@ export class AnalyticsService {
 
     getWorkload(): Observable<WorkloadData> {
         return this.http.get<WorkloadData>(`${this.baseUrl}/workload`);
+    }
+
+    getReports(): Observable<SprintReport[]> {
+        return this.http.get<SprintReport[]>(`${this.baseUrl}/reports`);
     }
 }

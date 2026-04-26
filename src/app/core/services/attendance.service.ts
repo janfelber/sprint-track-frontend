@@ -5,12 +5,20 @@ import {AttendanceStatus, WorklogEntry} from "../../my-attendance/my-attendance.
 
 export interface AttendanceDTO {
     id: number;
-    sprintId: number;
     checkInTime: string;
     status: AttendanceStatus;
     note: string;
     date: string;
     worklogs: WorklogEntry[];
+}
+
+export interface AttendanceRequest {
+    employeeId: number;
+    date: string;
+    status: AttendanceStatus;
+    checkInTime: string | null;
+    note: string | null;
+    worklogs: { issueId: number; hoursSpend: number }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,18 +30,11 @@ export class AttendanceService {
         return this.http.get<AttendanceDTO[]>(`${this.baseUrl}/${employeeId}`);
     }
 
-    create(record: Omit<AttendanceDTO, 'id'>): Observable<AttendanceDTO> {
-        return this.http.post<AttendanceDTO>(this.baseUrl, record);
+    create(record: AttendanceRequest): Observable<AttendanceDTO> {
+        return this.http.post<AttendanceDTO>(`${this.baseUrl}/check-in`, record);
     }
 
-    update(id: number, record: {
-        sprintId: number;
-        date: string;
-        status: "PRESENT" | "ABSENT" | "LATE" | "REMOTE" | "SICK_LEAVE" | "VACATION" | "HALF_DAY";
-        checkInTime: null | string;
-        note: string | null;
-        worklogs: WorklogEntry[]
-    }): Observable<AttendanceDTO> {
+    update(id: number, record: AttendanceRequest): Observable<AttendanceDTO> {
         return this.http.put<AttendanceDTO>(`${this.baseUrl}/${id}`, record);
     }
 }

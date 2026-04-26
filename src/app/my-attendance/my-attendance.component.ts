@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {AttendanceDTO, AttendanceService} from "../core/services/attendance.service";
 import {AssignedIssueDTO, IssueService} from "../core/services/issue.service";
+import { AuthService } from '../core/services/auth.service';
 
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'REMOTE' | 'SICK_LEAVE' | 'VACATION' | 'HALF_DAY';
 
@@ -24,12 +25,13 @@ export class MyAttendanceComponent implements OnInit{
 
   private readonly attendanceService = inject(AttendanceService);
   private readonly issueService = inject(IssueService);
+  private readonly auth = inject(AuthService);
 
   myIssues = signal<AssignedIssueDTO[]>([]);
 
   // ── Calendar navigation ──────────────────────────────────────────────────
-  calendarYear  = signal(2024);
-  calendarMonth = signal(0); // 0-based: 0 = January
+  calendarYear  = signal(new Date().getFullYear());
+  calendarMonth = signal(new Date().getMonth());
 
   allRecords = signal<AttendanceDTO[]>([]);
   loading = signal(false);
@@ -84,12 +86,15 @@ export class MyAttendanceComponent implements OnInit{
   }
 
   ngOnInit(): void {
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+
     this.loading.set(true);
-    this.attendanceService.getByEmployeeId(1).subscribe({
+    this.attendanceService.getByEmployeeId(userId).subscribe({
       next: records => { this.allRecords.set(records); this.loading.set(false); },
       error: () => { this.loading.set(false); },
     });
-    this.issueService.getAssignedToMember(1).subscribe(issues => this.myIssues.set(issues));
+    this.issueService.getAssignedToMember(userId).subscribe(issues => this.myIssues.set(issues));
   }
 
   recordByDate(dateStr: string): AttendanceDTO | undefined {
@@ -134,14 +139,22 @@ export class MyAttendanceComponent implements OnInit{
     const existing = this.recordByDate(dateStr);
     if (existing) {
       this.modalStatus.set(existing.status);
-      this.modalCheckIn.set(existing.checkInTime ?? '08:00');
-      // this.modalCheckOut.set(existing.checkOutTime ?? '16:00');
+      this.modalCheckIn.set(existing.checkInTime ? existing.checkInTime.substring(0, 5) : '08:00');
       this.modalNote.set(existing.note ?? '');
-      // this.modalWorklogs.set(
-      //   existing.worklogs.length > 0
-      //     ? existing.worklogs.map(w => ({ issueId: w.issueId, hours: w.hours }))
-      //     : [{ issueId: 0, hours: 0 }]
-      // );
+
+      // Merge worklog issues that may not be in the active sprint into myIssues
+      if (existing.worklogs && existing.worklogs.length > 0) {
+        const currentIds = new Set(this.myIssues().map(i => i.id));
+        const missing = existing.worklogs
+          .filter(w => !currentIds.has(w.issueId))
+          .map(w => ({ id: w.issueId, issueKey: w.issueKey, title: w.issueTitle } as AssignedIssueDTO));
+        if (missing.length > 0) {
+          this.myIssues.update(issues => [...issues, ...missing]);
+        }
+        this.modalWorklogs.set(existing.worklogs.map(w => ({ issueId: w.issueId, hours: Number(w.hours) })));
+      } else {
+        this.modalWorklogs.set([{ issueId: 0, hours: 0 }]);
+      }
     } else {
       this.modalStatus.set('PRESENT');
       this.modalCheckIn.set('08:00');
@@ -175,19 +188,19 @@ export class MyAttendanceComponent implements OnInit{
   saving = signal(false);
 
   saveModal(): void {
-    const worklogs: WorklogEntry[] = this.modalWorklogs()
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+
+    const worklogs = this.modalWorklogs()
       .filter(w => w.issueId > 0 && w.hours > 0)
-      .map(w => {
-        const issue = this.myIssues().find(i => i.id === w.issueId);
-        return { issueId: w.issueId, issueKey: issue?.issueKey ?? '', issueTitle: issue?.title ?? '', hours: w.hours };
-      });
+      .map(w => ({ issueId: w.issueId, hoursSpend: w.hours }));
 
     const existing = this.recordByDate(this.modalDate());
     const payload = {
-      sprintId: 10,
+      employeeId: userId,
       date: this.modalDate(),
       status: this.modalStatus(),
-      checkInTime: this.noTimeStatus ? null : this.modalCheckIn(),
+      checkInTime: this.noTimeStatus ? null : this.modalCheckIn() + ':00',
       note: this.modalNote() || null,
       worklogs,
     };
@@ -196,7 +209,7 @@ export class MyAttendanceComponent implements OnInit{
 
     const request$ = existing
       ? this.attendanceService.update(existing.id, payload)
-      : this.attendanceService.create(payload as any);
+      : this.attendanceService.create(payload);
 
     request$.subscribe({
       next: saved => {

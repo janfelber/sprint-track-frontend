@@ -7,6 +7,7 @@ import {
   DashboardService,
   EmployeeDashboardData,
 } from '../core/services/dashboard.service';
+import { AttendanceService } from '../core/services/attendance.service';
 
 interface StatCard {
   label: string;
@@ -27,6 +28,7 @@ interface StatCard {
 export class DashboardComponent implements OnInit {
   private auth = inject(AuthService);
   private dashboardService = inject(DashboardService);
+  private attendanceService = inject(AttendanceService);
 
   data = signal<DashboardData | null>(null);
   employeeData = signal<EmployeeDashboardData | null>(null);
@@ -286,8 +288,32 @@ export class DashboardComponent implements OnInit {
     return this.currentUser()?.name?.split(' ')[0] ?? '';
   }
 
+  get isWeekend(): boolean {
+    const day = new Date().getDay();
+    return day === 0 || day === 6;
+  }
+
   onCheckIn(): void {
-    console.log('Check in clicked');
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+
+    const now = new Date();
+    const date = now.toISOString().substring(0, 10);
+    const checkInTime = now.toTimeString().substring(0, 8); // HH:mm:ss
+
+    this.attendanceService.create({
+      employeeId: userId,
+      date,
+      status: 'PRESENT',
+      checkInTime,
+      note: null,
+      worklogs: [],
+    }).subscribe({
+      next: () => {
+        this.dashboardService.getEmployeeDashboardData(userId).subscribe(data => this.employeeData.set(data));
+      },
+      error: err => console.error('Check-in failed', err),
+    });
   }
 
   logout(): void {

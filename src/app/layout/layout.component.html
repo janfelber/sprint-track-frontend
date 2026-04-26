@@ -1,105 +1,188 @@
 <div class="flex h-screen overflow-hidden bg-gray-50 font-sans">
 
-  <!-- ================================
-       SIDEBAR
-  ================================ -->
-  <aside class="w-60 min-w-60 bg-[#111318] flex flex-col h-screen overflow-y-auto border-r border-[#1e2130]">
+    <!-- ================================
+         SIDEBAR
+    ================================ -->
+    <aside class="w-60 min-w-60 bg-[#111318] flex flex-col h-screen overflow-y-auto border-r border-[#1e2130] theme-sidebar">
 
-    <!-- Logo -->
-    <div class="px-5 py-6 border-b border-[#1e2130]">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">⚡</div>
-        <span class="text-white font-bold text-lg tracking-tight">
+        <!-- Logo -->
+        <div class="px-5 py-6 border-b border-[#1e2130]">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">⚡</div>
+                <span class="text-white font-bold text-lg tracking-tight">
           Sprint<span class="text-blue-400">Track</span>
         </span>
-      </div>
-    </div>
-
-    <!-- Sprint selector -->
-    <!-- TODO: bind to active sprint -->
-    <div class="mx-3 my-4 bg-[#1a1d27] border border-[#1e2130] rounded-xl p-3">
-      <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Active Sprint</div>
-      <div class="flex items-center justify-between">
-        <span class="text-white text-sm font-semibold">Sprint 1</span>
-        <span class="text-[10px] bg-blue-500/20 text-blue-400 font-bold px-2 py-0.5 rounded-full">
-          ACTIVE
-        </span>
-      </div>
-      <div class="text-[11px] text-gray-500 mt-1">Jan 1 – Jan 14</div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="px-3 flex-1">
-
-      <!-- TODO: role-based nav -->
-      <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-1">Overview</div>
-      <a routerLink="/dashboard"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 transition-all text-gray-500 hover:bg-[#1a1d27] hover:text-white">
-        Dashboard
-      </a>
-      <a routerLink="/attendance"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 transition-all text-gray-500 hover:bg-[#1a1d27] hover:text-white">
-        My Attendance
-      </a>
-
-      <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Analytics</div>
-      <a routerLink="/velocity"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
-        Velocity
-      </a>
-      <a routerLink="/workload"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
-        Workload
-      </a>
-      <a routerLink="/reports"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
-        Reports
-      </a>
-
-      <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Sprints</div>
-      <a routerLink="/sprints"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
-        All Sprints
-      </a>
-      <a routerLink="/issues"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
-        Issues
-      </a>
-      <a routerLink="/admin/team"
-         routerLinkActive="bg-[#1e2235] !text-white"
-         class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
-        Team Management
-      </a>
-
-    </nav>
-
-    <!-- TODO: logged in user -->
-    <div class="p-3 border-t border-[#1e2130]">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-          JD
+            </div>
         </div>
-        <div class="flex-1 min-w-0">
-          <div class="text-white text-xs font-medium truncate">John Doe</div>
-          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-500/20 text-gray-400">
-            Employee
+
+        <!-- Sprint selector -->
+        <div class="mx-3 my-4 bg-[#1a1d27] border border-[#1e2130] rounded-xl p-3 cursor-pointer hover:bg-[#1e2235] transition-colors">
+            <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Active Sprint</div>
+            <ng-container *ngIf="activeSprint(); else sprintLoading">
+                <div class="flex items-center justify-between">
+                    <span class="text-white text-sm font-semibold">{{ activeSprint()!.name }}</span>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-400 font-bold px-2 py-0.5 rounded-full">ACTIVE</span>
+                </div>
+                <div class="text-[11px] text-gray-500 mt-1">{{ activeSprint()!.startDate }} – {{ activeSprint()!.endDate }}</div>
+                <div class="mt-2 h-1 bg-[#2a2d3a] rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full"
+                         [style.width.%]="(activeSprint()!.currentDay / activeSprint()!.totalDays) * 100"></div>
+                </div>
+                <div class="text-[10px] text-gray-600 mt-1">Day {{ activeSprint()!.currentDay }} of {{ activeSprint()!.totalDays }}</div>
+            </ng-container>
+            <ng-template #sprintLoading>
+                <div class="text-[11px] text-gray-600">Loading...</div>
+            </ng-template>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="px-3 flex-1">
+
+            <!-- Employee nav -->
+            <ng-container *ngIf="role() === 'EMPLOYEE'">
+                <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-1">My Workspace</div>
+                <a *ngFor="let item of navEmployee"
+                   [routerLink]="item.route"
+                   routerLinkActive="bg-[#1e2235] nav-active"
+                   class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 transition-all text-gray-500 hover:bg-[#1a1d27] hover:text-white">
+          <span class="w-4 h-4 opacity-80">
+            <ng-container [ngSwitch]="item.icon">
+              <svg *ngSwitchCase="'grid'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <svg *ngSwitchCase="'check-square'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              <svg *ngSwitchCase="'list'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            </ng-container>
           </span>
+                    {{ item.label }}
+                </a>
+            </ng-container>
+
+            <!-- SM / Admin nav -->
+            <ng-container *ngIf="role() !== 'EMPLOYEE'">
+                <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-1">Overview</div>
+                <a *ngFor="let item of (role() === 'SCRUM_MASTER' ? navSM : navMain)"
+                   [routerLink]="item.route"
+                   routerLinkActive="bg-[#1e2235] nav-active"
+                   class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 transition-all text-gray-500 hover:bg-[#1a1d27] hover:text-white">
+          <span class="w-4 h-4 opacity-80">
+            <ng-container [ngSwitch]="item.icon">
+              <svg *ngSwitchCase="'grid'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <svg *ngSwitchCase="'users'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <svg *ngSwitchCase="'check-square'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+            </ng-container>
+          </span>
+                    {{ item.label }}
+                    <span *ngIf="item.badge" class="ml-auto bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+            {{ item.badge }}
+          </span>
+                </a>
+
+                <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Analytics</div>
+                <a *ngFor="let item of navAnalytics"
+                   [routerLink]="item.route"
+                   routerLinkActive="bg-[#1e2235] nav-active"
+                   class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+                    {{ item.label }}
+                </a>
+
+                <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Sprints</div>
+                <a *ngFor="let item of navSprints"
+                   [routerLink]="item.route"
+                   routerLinkActive="bg-[#1e2235] nav-active"
+                   class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+                    {{ item.label }}
+                </a>
+
+                <!-- Admin only -->
+                <ng-container *ngIf="role() === 'ADMIN'">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-600 px-2 py-2 font-semibold mt-3">Admin Panel</div>
+                    <a routerLink="/admin/team"
+                       routerLinkActive="bg-[#1e2235] nav-active"
+                       class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-sm font-medium mb-0.5 text-gray-500 hover:bg-[#1a1d27] hover:text-white transition-all">
+                        Team Management
+                    </a>
+                </ng-container>
+            </ng-container>
+
+        </nav>
+
+        <!-- Team quick view — SM / Admin only -->
+        <div *ngIf="role() !== 'EMPLOYEE'" class="p-3 border-t border-[#1e2130]">
+            <div class="text-[10px] uppercase tracking-widest text-gray-600 font-semibold mb-2.5">Team Today</div>
+            <div class="flex flex-wrap gap-1.5">
+                <div *ngFor="let m of teamMembers()"
+                     [title]="m.name + ' — ' + formatStatus(m.status)"
+                     class="relative w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white cursor-pointer"
+                     [ngClass]="m.color">
+                    {{ m.initials }}
+                    <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full border-[1.5px] border-[#111318]"
+                          [ngClass]="getStatusDotColor(m.status)"></span>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Logged in user + logout -->
+        <div class="p-3 border-t border-[#1e2130]">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {{ currentUser()?.initials }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-white text-xs font-medium truncate">{{ currentUser()?.name }}</div>
+                    <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" [ngClass]="getRoleBadgeClasses(role())">
+            {{ formatRole(role()) }}
+          </span>
+                </div>
+                <button (click)="toggleTheme()" [title]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+                        class="text-gray-600 hover:text-gray-300 transition-colors flex-shrink-0 p-1 rounded-lg hover:bg-[#1a1d27]">
+                    <!-- Sun — shown in dark mode, click = switch to light -->
+                    <svg *ngIf="isDark()" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <!-- Moon — shown in light mode, click = switch to dark -->
+                    <svg *ngIf="!isDark()" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <button (click)="logout()" title="Sign out"
+                        class="text-gray-600 hover:text-gray-300 transition-colors flex-shrink-0 p-1 rounded-lg hover:bg-[#1a1d27]">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Page content -->
+    <div class="flex-1 min-w-0 overflow-hidden flex flex-col bg-[#0d0f17] theme-content">
+        <router-outlet />
     </div>
-
-  </aside>
-
-  <!-- Page content -->
-  <div class="flex-1 min-w-0 overflow-hidden flex flex-col bg-[#0d0f17]">
-    <router-outlet />
-  </div>
 
 </div>

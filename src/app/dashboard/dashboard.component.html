@@ -19,7 +19,7 @@
         </svg>
         Filter
       </button>
-      <button *ngIf="role() !== 'EMPLOYEE'" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 transition-colors">
+      <button *ngIf="role() !== 'EMPLOYEE'" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-500 transition-colors" style="color: #ffffff">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -83,7 +83,7 @@
               <div class="text-xs text-gray-500 mt-0.5">{{ activeSprint()?.name ?? '—' }} · assigned to me</div>
             </div>
             <button (click)="onCheckIn()"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold transition-colors">
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-xs font-semibold transition-colors" style="color: #ffffff">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <polyline points="9 11 12 14 22 4"/>
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
@@ -297,7 +297,7 @@
               <span class="text-lg font-bold" [ngClass]="s.textColor">{{ s.count }}</span>
             </div>
             <button *ngIf="role() === 'SCRUM_MASTER'" (click)="onCheckIn()"
-                    class="w-full mt-1 py-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all">
+                    class="w-full mt-1 py-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all" style="color: #ffffff">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <polyline points="9 11 12 14 22 4"/>
                 <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>

@@ -10,3 +10,72 @@ router-outlet + * {
   flex-direction: column;
   overflow: hidden;
 }
+
+/* ── Theme: CSS custom properties ───────────────────────────────── */
+:root {
+  --c-bg:                  #f1f5f9;
+  --c-surface:             #ffffff;
+  --c-hover:               #f4f6fb;
+  --c-border:              #e2e8f0;
+  --c-border-subtle:       #edf0f7;
+  --c-active:              #eff6ff;
+  --c-chart-bar-active:    #bfdbfe;
+  --c-text-1:              #0f172a;
+  --c-text-2:              #374151;
+  --c-nav-active-text:     #1d4ed8;
+  --c-sidebar-dot-border:  #ffffff;
+}
+
+.dark {
+  --c-bg:                  #0d0f17;
+  --c-surface:             #111318;
+  --c-hover:               #1a1d27;
+  --c-border:              #1e2130;
+  --c-border-subtle:       #1a1d27;
+  --c-active:              #1e2235;
+  --c-chart-bar-active:    #2d3148;
+  --c-text-1:              #ffffff;
+  --c-text-2:              #d1d5db;
+  --c-nav-active-text:     #ffffff;
+  --c-sidebar-dot-border:  #111318;
+}
+
+/* ── Nav active: blue text on light, white on dark ───────────────── */
+.nav-active { color: var(--c-nav-active-text) !important; }
+
+/* ── Sidebar: theme-aware overrides (scoped to .theme-sidebar) ───── */
+.theme-sidebar.bg-\[\#111318\]                       { background-color: var(--c-surface)          !important; }
+.theme-sidebar .bg-\[\#111318\]                      { background-color: var(--c-surface)          !important; }
+.theme-sidebar .bg-\[\#1a1d27\]                      { background-color: var(--c-hover)            !important; }
+.theme-sidebar .bg-\[\#1e2235\]                      { background-color: var(--c-active)           !important; }
+.theme-sidebar .hover\:bg-\[\#1a1d27\]:hover         { background-color: var(--c-hover)            !important; }
+.theme-sidebar .hover\:bg-\[\#1e2235\]:hover         { background-color: var(--c-active)           !important; }
+.theme-sidebar.border-\[\#1e2130\]                   { border-color:     var(--c-border)           !important; }
+.theme-sidebar .border-\[\#1e2130\]                  { border-color:     var(--c-border)           !important; }
+.theme-sidebar .border-\[\#1a1d27\]                  { border-color:     var(--c-border-subtle)    !important; }
+.theme-sidebar .border-\[\#111318\]                  { border-color:     var(--c-sidebar-dot-border) !important; }
+.theme-sidebar .text-white                           { color: var(--c-text-1)                      !important; }
+.theme-sidebar .text-gray-300                        { color: var(--c-text-2)                      !important; }
+.theme-sidebar .hover\:text-white:hover              { color: var(--c-text-1)                      !important; }
+.theme-sidebar .hover\:text-gray-300:hover           { color: var(--c-text-2)                      !important; }
+/* Avatar initials on colored circles — always white regardless of theme */
+.theme-sidebar .rounded-full.text-white              { color: #ffffff                              !important; }
+
+/* ── Content area: theme-aware overrides (scoped to .theme-content) */
+.theme-content.bg-\[\#0d0f17\]                       { background-color: var(--c-bg)               !important; }
+.theme-content .bg-\[\#0d0f17\]                      { background-color: var(--c-bg)               !important; }
+.theme-content .bg-\[\#111318\]                      { background-color: var(--c-surface)           !important; }
+.theme-content .bg-\[\#1a1d27\]                      { background-color: var(--c-hover)             !important; }
+.theme-content .bg-\[\#1e2130\]                      { background-color: var(--c-border)            !important; }
+.theme-content .bg-\[\#1e2235\]                      { background-color: var(--c-active)            !important; }
+.theme-content .bg-\[\#2d3148\]                      { background-color: var(--c-chart-bar-active)  !important; }
+.theme-content .hover\:bg-\[\#1a1d27\]:hover         { background-color: var(--c-hover)             !important; }
+.theme-content .hover\:bg-\[\#1e2235\]:hover         { background-color: var(--c-active)            !important; }
+.theme-content .border-\[\#1e2130\]                  { border-color:      var(--c-border)            !important; }
+.theme-content .border-\[\#1a1d27\]                  { border-color:      var(--c-border-subtle)     !important; }
+.theme-content .text-white                           { color: var(--c-text-1) !important; }
+.theme-content .text-gray-300                        { color: var(--c-text-2) !important; }
+.theme-content .hover\:text-white:hover              { color: var(--c-text-1) !important; }
+.theme-content .hover\:text-gray-300:hover           { color: var(--c-text-2) !important; }
+/* Avatar initials on colored circles — always white regardless of theme */
+.theme-content .rounded-full.text-white              { color: #ffffff !important; }

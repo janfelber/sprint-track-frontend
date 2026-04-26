@@ -1,0 +1,107 @@
+<div class="min-h-screen bg-[#0d0f17] flex items-center justify-center p-4 theme-content">
+  <div class="w-full max-w-sm">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-xl font-bold mx-auto mb-4" style="color: #ffffff">
+        ⚡
+      </div>
+      <h1 class="text-white text-2xl font-bold tracking-tight">
+        Sprint<span class="text-blue-400">Track</span>
+      </h1>
+      <p class="text-gray-500 text-sm mt-1">Attendance & Sprint Management</p>
+    </div>
+
+    <!-- Card -->
+    <div class="bg-[#111318] border border-[#1e2130] rounded-2xl p-6">
+      <h2 class="text-white font-semibold text-lg mb-5">Sign in</h2>
+
+      <!-- Error -->
+      <div *ngIf="error"
+           class="mb-4 px-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Invalid email or password
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="onLogin()">
+        <div class="mb-4">
+          <label class="text-xs text-gray-400 font-medium mb-1.5 block">Email</label>
+          <input
+            [(ngModel)]="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="your@email.com"
+            class="w-full bg-[#1a1d27] border border-[#1e2130] rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+          />
+        </div>
+
+        <div class="mb-5">
+          <label class="text-xs text-gray-400 font-medium mb-1.5 block">Password</label>
+          <input
+            [(ngModel)]="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            class="w-full bg-[#1a1d27] border border-[#1e2130] rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+          />
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+          style="color: #ffffff">
+          <svg *ngIf="isLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+          {{ isLoading ? 'Signing in...' : 'Sign in' }}
+        </button>
+      </form>
+
+      <!-- Demo credentials -->
+      <div class="mt-5 pt-5 border-t border-[#1e2130]">
+        <div class="text-[10px] uppercase tracking-widest text-gray-600 font-semibold mb-3">Demo accounts</div>
+        <div class="flex flex-col gap-2">
+
+          <button type="button"
+                  (click)="fillCredentials('jan.novak@sprinttrack.com', 'password')"
+                  class="flex items-center justify-between px-3 py-2 bg-[#1a1d27] hover:bg-[#1e2235] rounded-lg cursor-pointer transition-colors group text-left">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 bg-purple-500/20 text-purple-400 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">JN</span>
+              <span class="text-xs text-gray-300">jan.novak@sprinttrack.com</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 font-semibold">Admin</span>
+          </button>
+
+          <button type="button"
+                  (click)="fillCredentials('katarina.simonova@sprinttrack.com', 'password')"
+                  class="flex items-center justify-between px-3 py-2 bg-[#1a1d27] hover:bg-[#1e2235] rounded-lg cursor-pointer transition-colors group text-left">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">KS</span>
+              <span class="text-xs text-gray-300">katarina.simonova@sprinttrack.com</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-semibold">Scrum Master</span>
+          </button>
+
+          <button type="button"
+                  (click)="fillCredentials('peter.horvath@sprinttrack.com', 'password')"
+                  class="flex items-center justify-between px-3 py-2 bg-[#1a1d27] hover:bg-[#1e2235] rounded-lg cursor-pointer transition-colors group text-left">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">PH</span>
+              <span class="text-xs text-gray-300">peter.horvath@sprinttrack.com</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">Employee</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

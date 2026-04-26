@@ -3,6 +3,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PageResponse } from './issue.service';
 
+export interface ActiveSprintDTO {
+  name: string;
+  startDate: string;
+  endDate: string;
+  currentDay: number;
+  totalDays: number;
+}
+
 export interface SprintDTO {
   id: number;
   name: string;
@@ -50,5 +58,9 @@ export class SprintService {
 
   getAllNames(): Observable<string[]> {
     return this.http.get<string[]>(`${this.baseUrl}/names`);
+  }
+
+  getActiveSprint(): Observable<ActiveSprintDTO> {
+    return this.http.get<ActiveSprintDTO>(`${this.baseUrl}/active`);
   }
 }

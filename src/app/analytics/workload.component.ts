@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AnalyticsService, MemberWorkload, WorkloadData } from '../core/services/analytics.service';
+import * as XLSX from 'xlsx';
 
 const AVATAR_COLORS = [
   'bg-blue-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-amber-500',
@@ -15,8 +16,7 @@ const AVATAR_COLORS = [
 })
 export class WorkloadComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
-
-  workloadData = signal<WorkloadData | null>(null);
+workloadData = signal<WorkloadData | null>(null);
   loading = signal(true);
 
   sprintName = computed(() => this.workloadData()?.sprintName ?? '');
@@ -39,6 +39,24 @@ export class WorkloadComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  exportXlsx(): void {
+    const today = new Date().toISOString().substring(0, 10);
+    const wb = XLSX.utils.book_new();
+
+    const rows = this.workload().map(m => ({
+      Member: m.name,
+      'Committed SP': m.committed,
+      'Completed SP': m.completed,
+      'In Progress SP': m.inProgress,
+      'Not Started SP': m.notStarted,
+      'Completion %': m.completionPct,
+      'Issue Count': m.issueCount,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Workload');
+
+    XLSX.writeFile(wb, `workload-${this.sprintName()}-${today}.xlsx`);
   }
 
   getInitials(name: string): string {

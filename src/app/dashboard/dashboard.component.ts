@@ -8,6 +8,7 @@ import {
   EmployeeDashboardData,
 } from '../core/services/dashboard.service';
 import { AttendanceService } from '../core/services/attendance.service';
+import * as XLSX from 'xlsx';
 
 interface StatCard {
   label: string;
@@ -286,6 +287,57 @@ export class DashboardComponent implements OnInit {
 
   get firstName(): string {
     return this.currentUser()?.name?.split(' ')[0] ?? '';
+  }
+
+  exportXlsx(): void {
+    const d = this.data();
+    if (!d) return;
+    const today = new Date().toISOString().substring(0, 10);
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1 — Today Attendance
+    const attendanceRows = (d.todayAttendance ?? []).map(m => ({
+      Name: m.name,
+      Role: m.role,
+      Status: m.status,
+      'Check-in': m.checkInTime ?? '',
+      Note: m.note ?? '',
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(attendanceRows), 'Today Attendance');
+
+    // Sheet 2 — Today Summary
+    const summary = d.todaySummary;
+    const summaryRows = summary ? [
+      { Status: 'Present',    Count: summary.present },
+      { Status: 'Remote',     Count: summary.remote },
+      { Status: 'Late',       Count: summary.late },
+      { Status: 'Half Day',   Count: summary.halfDay },
+      { Status: 'Absent',     Count: summary.absent },
+      { Status: 'Sick Leave', Count: summary.sickLeave },
+      { Status: 'Vacation',   Count: summary.vacation },
+    ] : [];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), 'Today Summary');
+
+    // Sheet 3 — Weekly Breakdown
+    const weeklyRows = (d.weeklyBreakdown ?? []).map(w => ({
+      Day: w.day,
+      Present: w.present,
+      Remote: w.remote,
+      Late: w.late,
+      Absent: w.absent,
+      Total: w.total,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(weeklyRows), 'Weekly Breakdown');
+
+    // Sheet 4 — Sprint Trend
+    const trendRows = (d.sprintTrend ?? []).map(s => ({
+      Sprint: s.sprint,
+      'Attendance %': s.pct,
+      Active: s.active ? 'Yes' : 'No',
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(trendRows), 'Sprint Trend');
+
+    XLSX.writeFile(wb, `team-dashboard-${today}.xlsx`);
   }
 
   get isWeekend(): boolean {

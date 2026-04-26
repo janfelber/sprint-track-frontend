@@ -1,6 +1,7 @@
 import {Component, signal, computed, OnInit, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
 import {AttendanceDTO, AttendanceService} from "../core/services/attendance.service";
 import {AssignedIssueDTO, IssueService} from "../core/services/issue.service";
 import { AuthService } from '../core/services/auth.service';
@@ -229,6 +230,41 @@ export class MyAttendanceComponent implements OnInit{
   deleteRecord(): void {
     this.allRecords.update(records => records.filter(r => r.date !== this.modalDate()));
     this.closeModal();
+  }
+
+  exportXlsx(): void {
+    const year  = this.calendarYear();
+    const month = this.calendarMonth();
+    const recs  = this.allRecords().filter(r => {
+      const d = new Date(r.date);
+      return d.getFullYear() === year && d.getMonth() === month;
+    }).sort((a, b) => a.date.localeCompare(b.date));
+
+    const monthStr = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).replace(' ', '-');
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1 — Attendance
+    const attendanceRows = recs.map(r => ({
+      Date: r.date.substring(0, 10),
+      Status: r.status,
+      'Check-in': r.checkInTime ? r.checkInTime.substring(0, 5) : '',
+      'Hours Logged': this.totalHours(r),
+      Note: r.note ?? '',
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(attendanceRows), 'Attendance');
+
+    // Sheet 2 — Worklogs
+    const worklogRows = recs.flatMap(r =>
+      (r.worklogs ?? []).map(w => ({
+        Date: r.date.substring(0, 10),
+        Issue: w.issueKey,
+        Title: w.issueTitle,
+        Hours: w.hours,
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(worklogRows), 'Worklogs');
+
+    XLSX.writeFile(wb, `my-attendance-${monthStr}.xlsx`);
   }
 
   get noTimeStatus(): boolean {

@@ -1,6 +1,7 @@
 import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AnalyticsService, BurndownPoint, Velocity} from "../core/services/analytics.service";
+import * as XLSX from 'xlsx';
 
 export interface VelocityBar {
   sprintId: number;
@@ -18,8 +19,7 @@ export interface VelocityBar {
 })
 export class VelocityComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
-
-  velocity = signal<Velocity[]>([]);
+velocity = signal<Velocity[]>([]);
   burndown = signal<BurndownPoint[]>([]);
   loading = signal(true);
 
@@ -164,6 +164,30 @@ export class VelocityComponent implements OnInit {
     if (!data.length) return '';
     return `${this.formatDate(data[0].date)} – ${this.formatDate(data[data.length - 1].date)}`;
   });
+
+  exportXlsx(): void {
+    const today = new Date().toISOString().substring(0, 10);
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1 — Velocity
+    const velocityRows = this.velocityBars().map(v => ({
+      Sprint: v.label,
+      'Committed SP': v.committed,
+      'Completed SP': v.completed,
+      'Completion %': v.committed ? Math.round((v.completed / v.committed) * 100) : 0,
+      Active: v.active ? 'Yes' : 'No',
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(velocityRows), 'Velocity');
+
+    // Sheet 2 — Burndown
+    const burndownRows = this.burndown().map(d => ({
+      Date: d.date,
+      'Remaining SP': d.remaining,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(burndownRows), 'Burndown');
+
+    XLSX.writeFile(wb, `velocity-burndown-${today}.xlsx`);
+  }
 
   getBarHeight(value: number): number {
     return (value / this.chartMax()) * 160;

@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AnalyticsService, SprintReport } from '../core/services/analytics.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-reports',
@@ -60,5 +61,37 @@ export class ReportsComponent implements OnInit {
     if (percentage >= 70) return 'bg-blue-500';
     if (percentage >= 50) return 'bg-amber-400';
     return 'bg-red-500';
+  }
+
+  exportXlsx(): void {
+    const today = new Date().toISOString().substring(0, 10);
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1 — Sprint Summary
+    const summaryRows = this.reports().map(r => ({
+      Sprint: r.name,
+      Start: r.startDate,
+      End: r.endDate,
+      Status: r.status,
+      'Issues Done': r.doneIssues,
+      'Issues Total': r.totalIssues,
+      'SP Done': r.doneSP,
+      'SP Total': r.totalSP,
+      'Completion %': r.completionPct,
+      Bugs: r.bugCount,
+      Stories: r.storyCount,
+      Tasks: r.taskCount,
+    }));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), 'Sprint Summary');
+
+    // Sheet 2 — Issue Type Distribution
+    const distRows = [
+      { Type: 'Stories', Count: this.totalStories(), '% of Total': this.typeTotal() > 0 ? +((this.totalStories() / this.typeTotal()) * 100).toFixed(0) : 0 },
+      { Type: 'Tasks',   Count: this.totalTasks(),   '% of Total': this.typeTotal() > 0 ? +((this.totalTasks()   / this.typeTotal()) * 100).toFixed(0) : 0 },
+      { Type: 'Bugs',    Count: this.totalBugs(),    '% of Total': this.typeTotal() > 0 ? +((this.totalBugs()    / this.typeTotal()) * 100).toFixed(0) : 0 },
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(distRows), 'Issue Distribution');
+
+    XLSX.writeFile(wb, `sprint-reports-${today}.xlsx`);
   }
 }

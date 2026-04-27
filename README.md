@@ -44,12 +44,6 @@ npm run build
 
 Build output is stored in the `dist/` directory.
 
-## Running Tests
-
-```bash
-npm test
-```
-
 ## Backend
 
 This application requires the SprintTrack backend to be running. See the [backend repository](https://github.com/janfelber/sprint-track-backend) for setup instructions.
